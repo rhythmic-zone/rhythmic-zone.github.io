@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Apache Flink是开发和运行许多不同类型应用程序的最佳选择，因为它具有广泛的特性。flink的特性包括支持流式及批量处理，复杂的状态管理，时间事件处理语义，并且保证了只执行一次的一致性状态。此外，flink可以在多种机器环境下运行，如YARN,apache mesos,k8s等等，也可以在独立的物理机器上。flnik具有高可用性，没有单点故障，已经证实可以扩展到千核，tb级的应用，提供了高">
+<meta name="keywords" content="flink,java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flink使用场景">
+<meta property="og:url" content="http://yoursite.com/2019/12/11/develop/flink使用场景/index.html">
+<meta property="og:site_name" content="rhythmic-zone">
+<meta property="og:description" content="Apache Flink是开发和运行许多不同类型应用程序的最佳选择，因为它具有广泛的特性。flink的特性包括支持流式及批量处理，复杂的状态管理，时间事件处理语义，并且保证了只执行一次的一致性状态。此外，flink可以在多种机器环境下运行，如YARN,apache mesos,k8s等等，也可以在独立的物理机器上。flnik具有高可用性，没有单点故障，已经证实可以扩展到千核，tb级的应用，提供了高">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/images/flink/usecases-eventdrivenapps.png">
+<meta property="og:image" content="http://yoursite.com/images/flink/usecases-analytics.png">
+<meta property="og:image" content="http://yoursite.com/images/flink/usecases-datapipelines.png">
+<meta property="og:updated_time" content="2019-12-12T13:32:04.109Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="flink使用场景">
+<meta name="twitter:description" content="Apache Flink是开发和运行许多不同类型应用程序的最佳选择，因为它具有广泛的特性。flink的特性包括支持流式及批量处理，复杂的状态管理，时间事件处理语义，并且保证了只执行一次的一致性状态。此外，flink可以在多种机器环境下运行，如YARN,apache mesos,k8s等等，也可以在独立的物理机器上。flnik具有高可用性，没有单点故障，已经证实可以扩展到千核，tb级的应用，提供了高">
+<meta name="twitter:image" content="http://yoursite.com/images/flink/usecases-eventdrivenapps.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/11/develop/flink使用场景/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>flink使用场景 | rhythmic-zone</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">rhythmic-zone</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/11/develop/flink使用场景/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="blue">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rhythmic-zone">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">flink使用场景
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-12-11 16:09:48" itemprop="dateCreated datePublished" datetime="2019-12-11T16:09:48+08:00">2019-12-11</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-12-12 21:32:04" itemprop="dateModified" datetime="2019-12-12T21:32:04+08:00">2019-12-12</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Apache Flink是开发和运行许多不同类型应用程序的最佳选择，因为它具有广泛的特性。flink的特性包括支持流式及批量处理，复杂的状态管理，时间事件处理语义，并且保证了只执行一次的一致性状态。此外，flink可以在多种机器环境下运行，如<code>YARN</code>,<code>apache mesos</code>,<code>k8s</code>等等，也可以在独立的物理机器上。flnik具有高可用性，没有单点故障，已经证实可以扩展到千核，tb级的应用，提供了高吞吐，低延迟的特性。<br>以下几种是flink支持的最通用的应用类型：</p>
+<ul>
+<li>事件驱动类型的应用</li>
+<li>数据分析类的应用</li>
+<li>数据管道类的应用</li>
+</ul>
+<a id="more"></a>
+<h1 id="事件驱动应用"><a href="#事件驱动应用" class="headerlink" title="事件驱动应用"></a>事件驱动应用</h1><p>事件驱动应用是一个有状态的应用，从一个或多个数据流中提取到事件，并通过触发计算，状态更新或者外部的操作来响应事件。</p>
+<p>事件驱动应用是计算层与数据层分离的传统应用程序的发展，在这个架构下，程序读取数据并将数据持久化到远程事务数据库，如mysql,mongo。</p>
+<p>相反，事件驱动的应用程序基于有状态的流处理应用程序。在这种设计中，数据和计算是共存的，从而产生本地(内存或磁盘)数据访问。通过定期将检查点写入远程持久存储来实现容错。下图描述了传统应用程序体系结构和事件驱动应用程序之间的区别</p>
+<p><img src="/images/flink/usecases-eventdrivenapps.png" alt><br>事件驱动应用程序的优点是什么?</p>
+<p>事件驱动的应用程序不查询远程数据库，而是在本地访问它们的数据，从而在吞吐量和延迟方面获得更好的性能。远程持久存储的定期检查点可以异步地、增量地完成。因此，检查点对常规事件处理的影响非常小。然而，事件驱动的应用程序设计提供了比本地数据访问更多的好处。在分层体系结构中，多个应用程序共享同一个数据库是很常见的。因此，需要协调数据库的任何更改，例如由于应用程序更新或扩展服务而更改数据布局。由于每个事件驱动的应用程序都负责自己的数据，因此更改数据表示或扩展应用程序所需的协调较少。</p>
+<p>Flink如何支持事件驱动的应用程序?</p>
+<p>事件驱动应用程序的限制由流处理器处理时间和状态的能力来定义。Flink的许多突出特性都围绕这些概念。Flink提供了一组丰富的状态基元，这些基元可以管理非常大的数据量(最大可达几tb)，并且具有严格的一次一致性保证。此外，Flink支持事件时间、高度可定制的窗口逻辑以及ProcessFunction提供的细粒度时间控制，这使得高级业务逻辑的实现成为可能。此外，Flink还有一个用于复杂事件处理(CEP)的库，用于检测数据流中的模式。</p>
+<p>然而，对于事件驱动的应用程序，Flink的突出特性是保存点。保存点是一个一致的状态图，可以用作兼容应用程序的起点。给定一个保存点，应用程序可以更新或调整其规模，或者可以启动应用程序的多个版本进行A/B测试。</p>
+<p>以下几种是典型的事件驱动应用</p>
+<ul>
+<li>欺诈检测</li>
+<li>异常检测</li>
+<li>基于规则的提醒</li>
+<li>业务处理监控</li>
+<li>web应用(社交类应用)</li>
+</ul>
+<h1 id="数据分析应用"><a href="#数据分析应用" class="headerlink" title="数据分析应用"></a>数据分析应用</h1><p>分析性工作从原始数据中提取信息和洞察力。传统上，分析是作为对记录事件的有限数据集的批查询或应用程序执行的。为了将最新的数据合并到分析结果中，必须将其添加到分析的数据集中，然后重新运行查询或应用程序。结果被写入存储系统或作为报告发出。</p>
+<p>有了复杂的流处理引擎，分析也可以实时执行。流查询或应用程序不是读取有限的数据集，而是吸收实时事件流，并在使用事件时不断生成和更新结果。结果要么被写入外部数据库，要么作为内部状态进行维护。指示板应用程序可以从外部数据库读取最新的结果，或者直接查询应用程序的内部状态。Flink支持流和批处理分析应用程序，如下图所示<br><img src="/images/flink/usecases-analytics.png" alt></p>
+<p>流式分析应用程序的优势是什么？</p>
+<p>与批处理分析相比，连续流分析的优势不仅有更低的延迟，同时它消除了周期性导入和查询执行。与批量查询相比，流查询不需要处理输入数据中的人工边界，这些边界是由周期性导入和输入的有界性造成的。</p>
+<p>另一个方面是更简单的应用程序体系结构。批处理分析管道由几个独立组件组成，用于定期调度数据摄入和查询执行。可靠地操作这样的管道不是件小事，因为一个组件的故障会影响管道的以下步骤。相比之下，流分析应用程序运行在复杂的流处理器(如Flink)上，它整合了从数据摄取到连续结果计算的所有步骤。因此，它可以依靠引擎的故障恢复机制。</p>
+<p>Flink如何支持数据分析应用程序?</p>
+<p>Flink为连续流和批处理分析提供了非常好的支持。具体来说，它提供了一个符合ansi的SQL接口，具有用于批处理和流查询的统一语义。无论SQL查询是在记录事件的静态数据集上运行，还是在实时事件流上运行，它们都计算相同的结果。对用户定义函数的丰富支持确保可以在SQL查询中执行定制代码。如果需要更多的自定义逻辑，则Flink的DataStream API或DataSet API提供更多的低级控制。此外，Flink s Gelly库为批量数据集的大规模和高性能图分析提供了算法和构建块。</p>
+<p>以下几种是典型的数据分析应用</p>
+<ul>
+<li>网络质量监控</li>
+<li>产品更新分析</li>
+<li>大规模的图形分析</li>
+</ul>
+<h1 id="数据管道应用"><a href="#数据管道应用" class="headerlink" title="数据管道应用"></a>数据管道应用</h1><p>数据仓库技术(Extract-transform-load, ETL)是在存储系统之间转换和移动数据的常用方法。通常定期触发ETL作业将数据从事务性数据库系统复制到分析数据库或数据仓库。</p>
+<p>数据管道的作用与ETL作业类似。它们转换和丰富数据，并可以将数据从一个存储系统移动到另一个存储系统。然而，它们以连续流模式运行，而不是周期性地触发。因此，它们能够从不断产生数据的源读取记录，并以低延迟将其移动到目的地。例如，数据管道可以监视文件系统目录中的新文件，并将其数据写入事件日志。另一个应用程序可以将事件流物化到数据库，或者增量地构建和细化搜索索引。</p>
+<p>下图描述了周期性ETL作业和连续数据管道之间的区别</p>
+<p><img src="/images/flink/usecases-datapipelines.png" alt></p>
+<p>数据管道的优点是什么?<br>在定期ETL作业上使用连续数据管道的明显优势是减少了将数据移动到其目的地的延迟。此外，数据管道更加通用，可以用于更多的用例，因为它们能够持续地消耗和发出数据。</p>
+<p>Flink如何支持数据管道?<br>许多常见的数据转换或充实任务都可以通过Flink的SQL接口(或表API)及其对用户定义函数的支持来实现。使用更加通用的DataStream API可以实现具有更高级需求的数据管道。Flink为各种存储系统(如Kafka、Kinesis、Elasticsearch和JDBC数据库系统)提供了丰富的连接器集。它还提供了用于文件系统的连续源，用于监视以时间限制方式编写文件的目录和接收器。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/flink/" rel="tag"># flink</a>
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/10/develop/ssl/" rel="next" title="生成https证书并上传到阿里云控制台">
+                <i class="fa fa-chevron-left"></i> 生成https证书并上传到阿里云控制台
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/12/11/develop/flink数据流编程模型/" rel="prev" title="flink数据流编程模型">
+                flink数据流编程模型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">blue</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#事件驱动应用"><span class="nav-number">1.</span> <span class="nav-text">事件驱动应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据分析应用"><span class="nav-number">2.</span> <span class="nav-text">数据分析应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据管道应用"><span class="nav-number">3.</span> <span class="nav-text">数据管道应用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">blue</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
