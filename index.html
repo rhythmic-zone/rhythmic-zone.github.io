@@ -332,7 +332,7 @@
                 
               
 
-              <time title="创建时间：2019-12-17 10:10:07 / 修改时间：11:08:47" itemprop="dateCreated datePublished" datetime="2019-12-17T10:10:07+08:00">2019-12-17</time>
+              <time title="创建时间：2019-12-17 10:10:07 / 修改时间：16:09:31" itemprop="dateCreated datePublished" datetime="2019-12-17T10:10:07+08:00">2019-12-17</time>
             
 
             
@@ -371,12 +371,14 @@
 
       
         
-          
-            <p>zookeeper是一个分布式，开源的分布式应用协调服务。它提供了一系列简单的基元，分布式程序可以在此基础上组建更高级别的同步服务，配置维护，组及命名。其设计成易于编写并且按照文件系统树型结构的数据模型。基于java运行</p>
-<h1 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h1><p>zookeeper 允许分布式进程通过共享的层次命名空间去互相协调，类似标准的文件系统。命名空间由数据寄存器构成-znodes，在zookeeper语境中，这些与文件，文件目录类似。不同于文件系统基于存储的目的，zookeeper的数据保留在内存中，这是zookeeper高吞吐率及低延迟的保证。</p>
-<p>zookeeper的实现保证了高性能，高可用及严格的访问顺序。</p>
-
-          
+          <p>zookeeper是一个分布式，开源的分布式应用协调服务。它提供了一系列简单的基元，分布式程序可以在此基础上组建更高级别的同步服务，配置维护，组及命名。其设计成易于编写并且按照文件系统树型结构的数据模型。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/17/develop/zookeeper/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -428,7 +430,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="lintao.life/2019/12/16/develop/一致性算法/">
+    <link itemprop="mainEntityOfPage" href="lintao.life/2019/12/16/develop/zab/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="blue">
@@ -447,8 +449,8 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/12/16/develop/一致性算法/" itemprop="url">
-                  一致性算法
+                <a class="post-title-link" href="/2019/12/16/develop/zab/" itemprop="url">
+                  ZAB
                 </a>
               
             
@@ -491,7 +493,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-12-17 10:02:42" itemprop="dateModified" datetime="2019-12-17T10:02:42+08:00">2019-12-17</time>
+                <time title="修改时间：2019-12-17 18:53:29" itemprop="dateModified" datetime="2019-12-17T18:53:29+08:00">2019-12-17</time>
               
             
           </span>
@@ -525,9 +527,14 @@
 
       
         
-          
-            <h1 id="zab协议"><a href="#zab协议" class="headerlink" title="zab协议"></a>zab协议</h1><h1 id="raft"><a href="#raft" class="headerlink" title="raft"></a>raft</h1><h1 id="paxos"><a href="#paxos" class="headerlink" title="paxos"></a>paxos</h1>
-          
+          <p>zab是zookeeper用来传播状态更新的广播协议，其类似于paxos协议，与paxos不同的是zab可以恢复历史记录，而不是单个协议实例。Zab具有前缀排序属性，允许主/备份实现一次有多个未完成的操作;Zab在leader变更时进行特殊处理，以保证领导者提出的值具有唯一的序列号。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/16/develop/zab/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
