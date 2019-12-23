@@ -108,29 +108,29 @@
 
 
 
-  <meta name="description" content="zookeeper是一个分布式，开源的分布式应用协调服务。它提供了一系列简单的基元，分布式程序可以在此基础上组建更高级别的同步服务，配置维护，组及命名。其设计成易于编写并且按照文件系统树型结构的数据模型。">
-<meta name="keywords" content="java">
+  <meta name="description" content="LoadBalance 中文意思为负载均衡，它的职责是将网络请求，或者其他形式的负载“均摊”到不同的机器上。避免集群中部分服务器压力过大，而另一些服务器比较空闲的情况。通过负载均衡，可以让每台服务器获取到适合自己处理能力的负载。在为高负载服务器分流的同时，还可以避免资源浪费，一举两得。负载均衡可分为软件负载均衡和硬件负载均衡。在我们日常开发中，一般很难接触到硬件负载均衡。但软件负载均衡还是可以接触">
+<meta name="keywords" content="dubbo,java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="zookeeper">
-<meta property="og:url" content="lintao.life/2019/12/17/develop/zookeeper/index.html">
+<meta property="og:title" content="dubbo负载均衡">
+<meta property="og:url" content="lintao.life/2019/12/20/develop/dubbo负载均衡/index.html">
 <meta property="og:site_name" content="rhythmic-zone">
-<meta property="og:description" content="zookeeper是一个分布式，开源的分布式应用协调服务。它提供了一系列简单的基元，分布式程序可以在此基础上组建更高级别的同步服务，配置维护，组及命名。其设计成易于编写并且按照文件系统树型结构的数据模型。">
+<meta property="og:description" content="LoadBalance 中文意思为负载均衡，它的职责是将网络请求，或者其他形式的负载“均摊”到不同的机器上。避免集群中部分服务器压力过大，而另一些服务器比较空闲的情况。通过负载均衡，可以让每台服务器获取到适合自己处理能力的负载。在为高负载服务器分流的同时，还可以避免资源浪费，一举两得。负载均衡可分为软件负载均衡和硬件负载均衡。在我们日常开发中，一般很难接触到硬件负载均衡。但软件负载均衡还是可以接触">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="/images/zookeeper/zkservice.jpg">
-<meta property="og:image" content="/images/zookeeper/zknamespace.jpg">
-<meta property="og:image" content="/images/zookeeper/zkcomponents.jpg">
-<meta property="og:updated_time" content="2019-12-17T08:09:31.222Z">
+<meta property="og:image" content="/images/dubbo/consistent-hash.jpg">
+<meta property="og:image" content="/images/dubbo/consistent-hash-invoker.jpg">
+<meta property="og:image" content="/images/dubbo/consistent-hash-data-incline.jpg">
+<meta property="og:updated_time" content="2019-12-20T05:15:14.399Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="zookeeper">
-<meta name="twitter:description" content="zookeeper是一个分布式，开源的分布式应用协调服务。它提供了一系列简单的基元，分布式程序可以在此基础上组建更高级别的同步服务，配置维护，组及命名。其设计成易于编写并且按照文件系统树型结构的数据模型。">
-<meta name="twitter:image" content="/images/zookeeper/zkservice.jpg">
+<meta name="twitter:title" content="dubbo负载均衡">
+<meta name="twitter:description" content="LoadBalance 中文意思为负载均衡，它的职责是将网络请求，或者其他形式的负载“均摊”到不同的机器上。避免集群中部分服务器压力过大，而另一些服务器比较空闲的情况。通过负载均衡，可以让每台服务器获取到适合自己处理能力的负载。在为高负载服务器分流的同时，还可以避免资源浪费，一举两得。负载均衡可分为软件负载均衡和硬件负载均衡。在我们日常开发中，一般很难接触到硬件负载均衡。但软件负载均衡还是可以接触">
+<meta name="twitter:image" content="/images/dubbo/consistent-hash.jpg">
 
 
 
 
 
 
-  <link rel="canonical" href="lintao.life/2019/12/17/develop/zookeeper/">
+  <link rel="canonical" href="lintao.life/2019/12/20/develop/dubbo负载均衡/">
 
 
 
@@ -140,7 +140,7 @@
   };
 </script>
 
-  <title>zookeeper | rhythmic-zone</title>
+  <title>dubbo负载均衡 | rhythmic-zone</title>
   
 
 
@@ -338,7 +338,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="lintao.life/2019/12/17/develop/zookeeper/">
+    <link itemprop="mainEntityOfPage" href="lintao.life/2019/12/20/develop/dubbo负载均衡/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="blue">
@@ -355,7 +355,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">zookeeper
+          <h1 class="post-title" itemprop="name headline">dubbo负载均衡
               
             
           </h1>
@@ -380,7 +380,7 @@
                 
               
 
-              <time title="创建时间：2019-12-17 10:10:07 / 修改时间：16:09:31" itemprop="dateCreated datePublished" datetime="2019-12-17T10:10:07+08:00">2019-12-17</time>
+              <time title="创建时间：2019-12-20 10:53:23 / 修改时间：13:15:14" itemprop="dateCreated datePublished" datetime="2019-12-20T10:53:23+08:00">2019-12-20</time>
             
 
             
@@ -390,6 +390,24 @@
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/dubbo/" itemprop="url" rel="index"><span itemprop="name">dubbo</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -418,42 +436,22 @@
       
 
       
-        <p>zookeeper是一个分布式，开源的分布式应用协调服务。它提供了一系列简单的基元，分布式程序可以在此基础上组建更高级别的同步服务，配置维护，组及命名。其设计成易于编写并且按照文件系统树型结构的数据模型。</p>
+        <p>LoadBalance 中文意思为负载均衡，它的职责是将网络请求，或者其他形式的负载“均摊”到不同的机器上。避免集群中部分服务器压力过大，而另一些服务器比较空闲的情况。通过负载均衡，可以让每台服务器获取到适合自己处理能力的负载。在为高负载服务器分流的同时，还可以避免资源浪费，一举两得。负载均衡可分为软件负载均衡和硬件负载均衡。在我们日常开发中，一般很难接触到硬件负载均衡。但软件负载均衡还是可以接触到的，比如 Nginx。在 Dubbo 中，也有负载均衡的概念和相应的实现。Dubbo 需要对服务消费者的调用请求进行分配，避免少数服务提供者负载过大。服务提供者负载过大，会导致部分请求超时。因此将负载均衡到每个服务提供者上，是非常必要的。Dubbo 提供了4种负载均衡实现，分别是基于权重随机算法的 RandomLoadBalance、基于最少活跃调用数算法的 LeastActiveLoadBalance、基于 hash 一致性的 ConsistentHashLoadBalance，以及基于加权轮询算法的 RoundRobinLoadBalance。</p>
 <a id="more"></a>
-<h1 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h1><h2 id="简单"><a href="#简单" class="headerlink" title="简单"></a>简单</h2><p>zookeeper 允许分布式进程通过共享的层次命名空间去互相协调，类似标准的文件系统。命名空间由数据寄存器构成-znodes，在zookeeper语境中，这些与文件，文件目录类似。不同于文件系统基于存储的目的，zookeeper的数据保留在内存中，这是zookeeper高吞吐率及低延迟的保证。</p>
-<h2 id="可复制的"><a href="#可复制的" class="headerlink" title="可复制的"></a>可复制的</h2><p>zookeeper的实现保证了高性能，高可用及严格的访问顺序。在性能方面可以用于大型的分布式系统。可靠性方面也不会出现单点失败，严格的顺序意味着复杂的同步组件可以在客户端中实现。</p>
-<p><img src="/images/zookeeper/zkservice.jpg" alt></p>
-<p>zookeeper维持着一个内存状态镜像，以及持久化的事务日志及快照。只要大多数的服务是可用的，zookeeper服务就是可用的。客户端连到一个单点的zookeeper服务，并维持着一个长连接，通过这个长连接发送请求，得到响应，监听事件及发送心跳包，如果这个服务宕机，客户端会连到一个不通的服务。</p>
-<h2 id="有序"><a href="#有序" class="headerlink" title="有序"></a>有序</h2><p>zookeeper用一个数字来标记每个更新，这个数字对应着事务的顺序，随后的操作可以用这个顺序来实现更高级别的抽象逻辑，例如同步组件。</p>
-<h2 id="快速"><a href="#快速" class="headerlink" title="快速"></a>快速</h2><p>本质上是已读为主，所以速度很快，zookeeper程序运行在数千台机器上，以读为主的性能会更好，这个比例在10:1左右。</p>
-<h1 id="数据模型及层次命名空间"><a href="#数据模型及层次命名空间" class="headerlink" title="数据模型及层次命名空间"></a>数据模型及层次命名空间</h1><p>zookeeper的命名空间类似标准的文件系统，每一个节点都有一个路径标识。<br><img src="/images/zookeeper/zknamespace.jpg" alt></p>
-<h1 id="节点及临时节点"><a href="#节点及临时节点" class="headerlink" title="节点及临时节点"></a>节点及临时节点</h1><p>每一个节点都可以关联着数据及子节点，就像是文件系统中可以是文件也可以是文件夹，(zookeeper用于储存协调数据：状态信息，配置，位置信息等等，所以每个节点的数据非常小），我们用znode来表示这些节点。</p>
-<p>znode维持着一个统计结构包含数据修改的版本号，acl改变，时间戳，允许缓存的验证及协调更新。每一次数据的改变，版本号会递增，例如当一个客户端检索数据也会收到数据的版本号。在命名空间中的znode数据是自动读写的，读取会得到所有于这个节点关联的数据，而写会替换所有的数据。每一个节点有一份acl，可以严格的控制谁可以访问。</p>
-<p>zookeeper还有临时节点的概念，这些节点跟随着一个会话的生命周期，当会话结束后这些节点也会被删除</p>
-<h1 id="条件更新及监听"><a href="#条件更新及监听" class="headerlink" title="条件更新及监听"></a>条件更新及监听</h1><p>zookeeper支持监听，客户端可以在节点上创建监听，当一个节点改变时监听器会触发和删除。当一个节点发生改变，客户端会收到包，如果客户端与zookeeper服务器间的长连接断开，客户端会收到一个本地的通知事件。</p>
-<h1 id="保证"><a href="#保证" class="headerlink" title="保证"></a>保证</h1><p> zookeeper非常快速简单，基于其设计的目的，它可以作为其他更复杂服务的一个组件，例如同步，它提供了一套保证：</p>
+<p>在dubbo中所有负载均衡都是从继承<code>AbstractLoadBalance</code>，该类实现了<code>LoadBalance</code>接口，内部封装了一些公共的方法</p>
 <ul>
-<li>顺序一致性，所有的更新操作跟从客户端的发过来的顺序一致</li>
-<li>原子性</li>
-<li>单一系统镜像，不管客户端连的是哪个服务，其得到的数据都是一致</li>
-<li>可靠性，一旦更新成功，这个数据会一致保存着直到被覆盖</li>
-<li>实时性，在一定的时间范围内，客户端的视图都是最新的</li>
+<li><p>select方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if (CollectionUtils.isEmpty(invokers)) &#123;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br><span class="line">if (invokers.size() == 1) &#123;</span><br><span class="line">    //当实例只有一个，不通过负载均衡</span><br><span class="line">    return invokers.get(0);</span><br><span class="line">&#125;</span><br><span class="line">return doSelect(invokers, url, invocation);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>calculateWarmupWeight<br>计算程序预热后的权重值，保证当前服务运行时长少于预热时长时，对服务进行降权，避免程序刚开始运行就处于高负载的情况。服务预热时一个优化手段，与此类似还有jvm预热。主要目的是让服务”低功率”运行一段时间，让其逐渐升至最佳状态。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">static int calculateWarmupWeight(int uptime, int warmup, int weight) &#123;</span><br><span class="line">        int ww = (int) ( uptime / ((float) warmup / weight));</span><br><span class="line">        return ww &lt; 1 ? 1 : (Math.min(ww, weight));</span><br><span class="line">&#125;</span><br><span class="line">int getWeight(Invoker&lt;?&gt; invoker, Invocation invocation) &#123;</span><br><span class="line">    // 获取当前服务的权重值</span><br><span class="line">    int weight = invoker.getUrl().getMethodParameter(invocation.getMethodName(), WEIGHT_KEY, DEFAULT_WEIGHT);</span><br><span class="line">    if (weight &gt; 0) &#123;</span><br><span class="line">        // 获取启动时间</span><br><span class="line">        long timestamp = invoker.getUrl().getParameter(TIMESTAMP_KEY, 0L);</span><br><span class="line">        if (timestamp &gt; 0L) &#123;</span><br><span class="line">            //计算运行时间</span><br><span class="line">            long uptime = System.currentTimeMillis() - timestamp;</span><br><span class="line">            if (uptime &lt; 0) &#123;</span><br><span class="line">                return 1;</span><br><span class="line">            &#125;</span><br><span class="line">            //获取预热时长，默认10分钟</span><br><span class="line">            int warmup = invoker.getUrl().getParameter(WARMUP_KEY, DEFAULT_WARMUP);</span><br><span class="line">            if (uptime &gt; 0 &amp;&amp; uptime &lt; warmup) &#123;</span><br><span class="line">                weight = calculateWarmupWeight((int)uptime, warmup, weight);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return Math.max(weight, 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
 </ul>
-<h1 id="简单的API"><a href="#简单的API" class="headerlink" title="简单的API"></a>简单的API</h1><p> zookeeper提供的接口非常简单，支持如下操作：</p>
-<ul>
-<li><code>create</code>: 在树的指定位置创建一个节点</li>
-<li><code>delete</code>: 删除一个节点</li>
-<li><code>exists</code>: 检查一个节点是否存在</li>
-<li><code>get data</code>: 读取</li>
-<li><code>send data</code>: 发送</li>
-<li><code>get children</code>: 获取当前节点下的所有子节点 </li>
-<li><code>sync</code>: 等待数据被同步完毕</li>
-</ul>
-<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p><img src="/images/zookeeper/zkcomponents.jpg" alt></p>
-<p>除了请求处理器外，每一个服务都由其复制自身的副本构成。这些副本的数据库是在内存中维持整个树结构，更新操作会固化到磁盘中以供后续恢复，写操作在应用到内存前会先序列化到磁盘中。</p>
-<p>客户端连接到一个确定的服务器去提交请求，从每个服务的副本中读取数据，由一致性协议去处理服务的更新状态。作为一致性协议的一部分，所有从客户端的过来的请求都被重定向到同一个节点(leader)。剩下的这些服务叫做followes，从leader中收到提案消息，并对消息传递达成一致。</p>
-<p>ZooKeeper使用自定义原子消息传递协议。因为消息层是原子的，所以ZooKeeper可以保证本地副本不会发散。当leader收到一个写请求时，它会计算将要应用的写时系统的状态，并将其转换为捕获这个新状态的事务</p>
-
+<h1 id="ConsistentHashLoadBalance"><a href="#ConsistentHashLoadBalance" class="headerlink" title="ConsistentHashLoadBalance"></a>ConsistentHashLoadBalance</h1><p>一致性 hash 算法由麻省理工学院的 Karger 及其合作者于1997年提出的，算法提出之初是用于大规模缓存系统的负载均衡。它的工作过程是这样的，首先根据 ip 或者其他的信息为缓存节点生成一个 hash，并将这个 hash 投射到 [0, 232 - 1] 的圆环上。当有查询或写入请求时，则为缓存项的 key 生成一个 hash 值。然后查找第一个大于或等于该 hash 值的缓存节点，并到这个节点中查询或写入缓存项。如果当前节点挂了，则在下一次查询或写入缓存时，为缓存项查找另一个大于其 hash 值的缓存节点即可。大致效果如下图所示，每个缓存节点在圆环上占据一个位置。如果缓存项的 key 的 hash 值小于缓存节点 hash 值，则到该缓存节点中存储或读取缓存项。比如下面绿色点对应的缓存项将会被存储到 cache-2 节点中。由于 cache-3 挂了，原本应该存到该节点中的缓存项最终会存储到 cache-4 节点中。</p>
+<p><img src="/images/dubbo/consistent-hash.jpg" alt><br>以下是一致性hash在dubbo中的应用，上图中的缓存节点也换成了dubbo服务提供者</p>
+<p><img src="/images/dubbo/consistent-hash-invoker.jpg" alt></p>
+<p>这里同一个节点属于同一个服务，主要是避免数据发生倾斜。所谓数据倾斜是指，由于节点不够分散，导致大量请求落到了同一个节点上，而其他节点只会接收到了少量请求的情况。比如：<br><img src="/images/dubbo/consistent-hash-data-incline.jpg" alt><br>如上，由于 Invoker-1 和 Invoker-2 在圆环上分布不均，导致系统中75%的请求都会落到 Invoker-1 上，只有 25% 的请求会落到 Invoker-2 上。解决这个问题办法是引入虚拟节点，通过虚拟节点均衡各个节点的请求量。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"> protected &lt;T&gt; Invoker&lt;T&gt; doSelect(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation) &#123;</span><br><span class="line">    String methodName = RpcUtils.getMethodName(invocation);</span><br><span class="line">    String key = invokers.get(0).getUrl().getServiceKey() + &quot;.&quot; + methodName;</span><br><span class="line">    //获取invokes的hash值</span><br><span class="line">    int identityHashCode = System.identityHashCode(invokers);</span><br><span class="line">    ConsistentHashSelector&lt;T&gt; selector = (ConsistentHashSelector&lt;T&gt;) selectors.get(key);</span><br><span class="line">    //如果invokes的hash值发生改变，说明可用服务发生改变，需要重新计算节点位置</span><br><span class="line">    if (selector == null || selector.identityHashCode != identityHashCode) &#123;</span><br><span class="line">        selectors.put(key, new ConsistentHashSelector&lt;T&gt;(invokers, methodName, identityHashCode));</span><br><span class="line">        selector = (ConsistentHashSelector&lt;T&gt;) selectors.get(key);</span><br><span class="line">    &#125;</span><br><span class="line">    return selector.select(invocation);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private static final class ConsistentHashSelector&lt;T&gt; &#123;</span><br><span class="line"></span><br><span class="line">    // 使用 TreeMap 存储 Invoker 虚拟节点</span><br><span class="line">    private final TreeMap&lt;Long, Invoker&lt;T&gt;&gt; virtualInvokers;</span><br><span class="line"></span><br><span class="line">    private final int replicaNumber;</span><br><span class="line"></span><br><span class="line">    private final int identityHashCode;</span><br><span class="line"></span><br><span class="line">    private final int[] argumentIndex;</span><br><span class="line"></span><br><span class="line">    ConsistentHashSelector(List&lt;Invoker&lt;T&gt;&gt; invokers, String methodName, int identityHashCode) &#123;</span><br><span class="line">        this.virtualInvokers = new TreeMap&lt;Long, Invoker&lt;T&gt;&gt;();</span><br><span class="line">        this.identityHashCode = identityHashCode;</span><br><span class="line">        URL url = invokers.get(0).getUrl();</span><br><span class="line">        // 获取虚拟节点数，默认为160</span><br><span class="line">        this.replicaNumber = url.getMethodParameter(methodName, &quot;hash.nodes&quot;, 160);</span><br><span class="line">        // 获取参与 hash 计算的参数下标值，默认对第一个参数进行 hash 运算</span><br><span class="line">        String[] index = Constants.COMMA_SPLIT_PATTERN.split(url.getMethodParameter(methodName, &quot;hash.arguments&quot;, &quot;0&quot;));</span><br><span class="line">        argumentIndex = new int[index.length];</span><br><span class="line">        for (int i = 0; i &lt; index.length; i++) &#123;</span><br><span class="line">            argumentIndex[i] = Integer.parseInt(index[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        for (Invoker&lt;T&gt; invoker : invokers) &#123;</span><br><span class="line">            String address = invoker.getUrl().getAddress();</span><br><span class="line">            for (int i = 0; i &lt; replicaNumber / 4; i++) &#123;</span><br><span class="line">                // 对 address + i 进行 md5 运算，得到一个长度为16的字节数组</span><br><span class="line">                byte[] digest = md5(address + i);</span><br><span class="line">                // 对 digest 部分字节进行4次 hash 运算，得到四个不同的 long 型正整数</span><br><span class="line">                for (int h = 0; h &lt; 4; h++) &#123;</span><br><span class="line">                    // h = 0 时，取 digest 中下标为 0 ~ 3 的4个字节进行位运算</span><br><span class="line">                    // h = 1 时，取 digest 中下标为 4 ~ 7 的4个字节进行位运算</span><br><span class="line">                    // h = 2, h = 3 时过程同上</span><br><span class="line">                    long m = hash(digest, h);</span><br><span class="line">                    // 将 hash 到 invoker 的映射关系存储到 virtualInvokers 中，</span><br><span class="line">                    // virtualInvokers 需要提供高效的查询操作，因此选用 TreeMap 作为存储结构</span><br><span class="line">                    virtualInvokers.put(m, invoker);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">ConsistentHashSelector 的构造方法执行了一系列的初始化逻辑，比如从配置中获取虚拟节点数以及参与 hash 计算的参数下标，默认情况下只使用第一个参数进行 hash。需要特别说明的是，ConsistentHashLoadBalance 的负载均衡逻辑只受参数值影响，具有相同参数值的请求将会被分配给同一个服务提供者。ConsistentHashLoadBalance 不 关系权重，因此使用时需要注意一下。</span><br><span class="line"></span><br><span class="line">在获取虚拟节点数和参数下标配置后，接下来要做的事情是计算虚拟节点 hash 值，并将虚拟节点存储到 TreeMap 中。到此，ConsistentHashSelector 初始化工作就完成了。接下来，我们来看看 select 方法的逻辑。</span><br><span class="line"></span><br><span class="line">public Invoker&lt;T&gt; select(Invocation invocation) &#123;</span><br><span class="line">    // 将参数转为 key</span><br><span class="line">    String key = toKey(invocation.getArguments());</span><br><span class="line">    // 对参数 key 进行 md5 运算</span><br><span class="line">    byte[] digest = md5(key);</span><br><span class="line">    // 取 digest 数组的前四个字节进行 hash 运算，再将 hash 值传给 selectForKey 方法，</span><br><span class="line">    // 寻找合适的 Invoker</span><br><span class="line">    return selectForKey(hash(digest, 0));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private Invoker&lt;T&gt; selectForKey(long hash) &#123;</span><br><span class="line">    // 到 TreeMap 中查找第一个节点值大于或等于当前 hash 的 Invoker</span><br><span class="line">    Map.Entry&lt;Long, Invoker&lt;T&gt;&gt; entry = virtualInvokers.tailMap(hash, true).firstEntry();</span><br><span class="line">    // 如果 hash 大于 Invoker 在圆环上最大的位置，此时 entry = null，</span><br><span class="line">    // 需要将 TreeMap 的头节点赋值给 entry</span><br><span class="line">    if (entry == null) &#123;</span><br><span class="line">        entry = virtualInvokers.firstEntry();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 返回 Invoker</span><br><span class="line">    return entry.getValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
 
@@ -471,6 +469,14 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/dubbo/" rel="tag"># dubbo</a>
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
 
       
       
@@ -480,8 +486,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/12/16/develop/zab/" rel="next" title="ZAB">
-                <i class="fa fa-chevron-left"></i> ZAB
+              <a href="/2019/12/17/develop/zookeeper/" rel="next" title="zookeeper">
+                <i class="fa fa-chevron-left"></i> zookeeper
               </a>
             
           </div>
@@ -489,10 +495,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/12/20/develop/dubbo负载均衡/" rel="prev" title="dubbo负载均衡">
-                dubbo负载均衡 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -640,7 +642,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#设计目标"><span class="nav-number">1.</span> <span class="nav-text">设计目标</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简单"><span class="nav-number">1.1.</span> <span class="nav-text">简单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可复制的"><span class="nav-number">1.2.</span> <span class="nav-text">可复制的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#有序"><span class="nav-number">1.3.</span> <span class="nav-text">有序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速"><span class="nav-number">1.4.</span> <span class="nav-text">快速</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型及层次命名空间"><span class="nav-number">2.</span> <span class="nav-text">数据模型及层次命名空间</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#节点及临时节点"><span class="nav-number">3.</span> <span class="nav-text">节点及临时节点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#条件更新及监听"><span class="nav-number">4.</span> <span class="nav-text">条件更新及监听</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#保证"><span class="nav-number">5.</span> <span class="nav-text">保证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简单的API"><span class="nav-number">6.</span> <span class="nav-text">简单的API</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现"><span class="nav-number">7.</span> <span class="nav-text">实现</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ConsistentHashLoadBalance"><span class="nav-number">1.</span> <span class="nav-text">ConsistentHashLoadBalance</span></a></li></ol></div>
             
 
           </div>
