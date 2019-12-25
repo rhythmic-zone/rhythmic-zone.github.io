@@ -86,7 +86,7 @@
     root: '/',
     scheme: 'Pisces',
     version: '6.3.0',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":false,"onmobile":true},
     fancybox: false,
     fastclick: false,
     lazyload: false,
@@ -116,7 +116,7 @@
 <meta property="og:site_name" content="rhythmic-zone">
 <meta property="og:description" content="zab是zookeeper用来传播状态更新的广播协议，其类似于paxos协议，与paxos不同的是zab可以恢复历史记录，而不是单个协议实例。Zab具有前缀排序属性，允许主/备份实现一次有多个未完成的操作;Zab在leader变更时进行特殊处理，以保证领导者提出的值具有唯一的序列号。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-17T12:37:39.894Z">
+<meta property="og:updated_time" content="2019-12-25T08:42:36.408Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZAB">
 <meta name="twitter:description" content="zab是zookeeper用来传播状态更新的广播协议，其类似于paxos协议，与paxos不同的是zab可以恢复历史记录，而不是单个协议实例。Zab具有前缀排序属性，允许主/备份实现一次有多个未完成的操作;Zab在leader变更时进行特殊处理，以保证领导者提出的值具有唯一的序列号。">
@@ -385,7 +385,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-12-17 20:37:39" itemprop="dateModified" datetime="2019-12-17T20:37:39+08:00">2019-12-17</time>
+                <time title="修改时间：2019-12-25 16:42:36" itemprop="dateModified" datetime="2019-12-25T16:42:36+08:00">2019-12-25</time>
               
             
           </span>
@@ -576,8 +576,9 @@
 <ul>
 <li>领导者向追随者发提案</li>
 <li>领导者在考虑一个已提交的提议之前，要等待多数追随者的确认。</li>
-<li>提案包括大纪元号码，类似于Paxos中的选票号码<br>Zab和Paxos之间的主要概念区别在于，它主要是为像Zookeeper这样的主备份系统设计的，而不是为状态机复制设计的。</li>
+<li>提案包括大纪元号码，类似于Paxos中的选票号码</li>
 </ul>
+<p>Zab和Paxos之间的主要概念区别在于，它主要是为像Zookeeper这样的主备份系统设计的，而不是为状态机复制设计的。</p>
 <h2 id="主备份和状态机复制之间的区别"><a href="#主备份和状态机复制之间的区别" class="headerlink" title="主备份和状态机复制之间的区别"></a>主备份和状态机复制之间的区别</h2><p>状态机是处理一系列请求的软件组件。对于每个已处理的请求，它可以修改其内部状态并产生答复。状态机在某种意义上是确定性的，即在给定两次运行时，如果它接收到相同的请求序列，则它始终会进行相同的内部状态转换并产生相同的答复。</p>
 <p>状态机复制系统是一个客户端服务器系统，即使每个请求由客户端同时提交并由副本以不同顺序接收，也可以确保每个状态机副本执行相同的客户端请求序列。副本使用诸如Paxos之类的共识算法就客户端请求的执行顺序达成一致。同时发送并在时间上重叠的客户端请求可以按任何顺序执行。如果领导者失败，则执行恢复的新领导者可以随意重新排序任何未提交的请求，因为该请求尚未完成。</p>
 <p>对于主备份系统（例如Zookeeper），副本在增量（增量）状态更新的应用程序顺序上达成一致，增量状态更新由主副本生成并发送给其跟随者。与客户端请求不同，状态更新必须从主数据库的原始初始状态开始，按照主数据库的原始原始生成顺序进行应用。如果主服务器发生故障，则执行恢复的新主服务器无法任意重新排序未提交的状态更新，也不能从其他初始状态开始应用它们。</p>
@@ -668,6 +669,8 @@
 
   <aside id="sidebar" class="sidebar">
     
+      <div id="sidebar-dimmer"></div>
+    
     <div class="sidebar-inner">
 
       
@@ -698,7 +701,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-count">12</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -783,6 +786,11 @@
       
 
       
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
 
     </div>
   </aside>
@@ -828,11 +836,6 @@
       </div>
     </footer>
 
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
     
 
     
