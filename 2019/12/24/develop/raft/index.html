@@ -124,7 +124,7 @@
 <meta property="og:image" content="/images/consensus/fa933b96f1cb688befc825c3d82c167d.png">
 <meta property="og:image" content="/images/consensus/6b7f4bdd4ab11b6c9c348307778753f7.png">
 <meta property="og:image" content="/images/consensus/2f2d0eea6c824382b881ad77dcc38061.png">
-<meta property="og:updated_time" content="2019-12-26T06:12:38.492Z">
+<meta property="og:updated_time" content="2020-01-03T02:23:54.824Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="raft一致性算法">
 <meta name="twitter:description" content="raft是通过管理日志复制的一致性算法。它等价于paxos，并且同样高效，不过在结构上有所不同，raft比paxos更容易理解，因为在实际系统中更容易落地。为追求易理解性，raft将一致性关键要素分成：领导选举（leader election),日志复制（log replication）,以及安全性，并执行更高级别的一致性必须考虑的状态数。从用户学习的效果来看，raft更容易被掌握。此外，raft">
@@ -719,7 +719,7 @@
 <h1 id="集群成员变更"><a href="#集群成员变更" class="headerlink" title="集群成员变更"></a>集群成员变更</h1><p>不过在实践过程中，集群可能会调整，例如替换故障机器或者调整副本数。</p>
 <p>安全配置的前提是：调整过程中不能出现两个领袖的情况。很不幸的是任何服务器直接从旧配置切换到新配置都是不安全的。由于所有服务器不可能同时切换，集群在调整过程中可能分化处两个互斥的过半数集合</p>
 <p><img src="/images/consensus/2f2d0eea6c824382b881ad77dcc38061.png" alt><br>直接从一份配置切换到另一份配置是不安全的，因为不同服务器可能在不同时间点切换</p>
-<p>为了确保安全性，配置分为两个阶段进行。实现两阶段机制有很多种方式可选。譬如有些系统在第一阶段金庸就配置并停止更新客户端请求，然后第二阶段启用新配置。在raft种，集群先切换到一个 联合一致性的中间配置，结合旧配置和新配置</p>
+<p>为了确保安全性，配置分为两个阶段进行。实现两阶段机制有很多种方式可选。譬如有些系统在第一阶段禁用旧配置并停止更新客户端请求，然后第二阶段启用新配置。在raft种，集群先切换到一个 联合一致性的中间配置，结合旧配置和新配置</p>
 <ul>
 <li>日志条目同时复制到新旧配置的所有机器</li>
 <li>新旧机器配置种任一台均可能成为领袖</li>
