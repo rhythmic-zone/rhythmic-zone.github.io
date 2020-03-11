@@ -108,25 +108,25 @@
 
 
 
-  <meta name="description" content="在装有openssl的系统中执行，window下可以使用win10子系统">
-<meta name="keywords" content="java">
+  <meta name="description" content="使用java-agent方式激活intellij激活，有效期可到2089年">
+<meta name="keywords" content="工具">
 <meta property="og:type" content="article">
-<meta property="og:title" content="生成https证书并上传到阿里云控制台">
-<meta property="og:url" content="lintao.life/2019/12/10/develop/ssl/index.html">
+<meta property="og:title" content="intellij激活">
+<meta property="og:url" content="lintao.life/2018/06/27/util/intellij/index.html">
 <meta property="og:site_name" content="rhythmic-zone">
-<meta property="og:description" content="在装有openssl的系统中执行，window下可以使用win10子系统">
+<meta property="og:description" content="使用java-agent方式激活intellij激活，有效期可到2089年">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-20T06:19:47.551Z">
+<meta property="og:updated_time" content="2020-03-11T02:08:06.050Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="生成https证书并上传到阿里云控制台">
-<meta name="twitter:description" content="在装有openssl的系统中执行，window下可以使用win10子系统">
+<meta name="twitter:title" content="intellij激活">
+<meta name="twitter:description" content="使用java-agent方式激活intellij激活，有效期可到2089年">
 
 
 
 
 
 
-  <link rel="canonical" href="lintao.life/2019/12/10/develop/ssl/">
+  <link rel="canonical" href="lintao.life/2018/06/27/util/intellij/">
 
 
 
@@ -136,7 +136,7 @@
   };
 </script>
 
-  <title>生成https证书并上传到阿里云控制台 | rhythmic-zone</title>
+  <title>intellij激活 | rhythmic-zone</title>
   
 
 
@@ -326,7 +326,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="lintao.life/2019/12/10/develop/ssl/">
+    <link itemprop="mainEntityOfPage" href="lintao.life/2018/06/27/util/intellij/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="blue">
@@ -343,7 +343,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">生成https证书并上传到阿里云控制台
+          <h1 class="post-title" itemprop="name headline">intellij激活
               
             
           </h1>
@@ -368,7 +368,7 @@
                 
               
 
-              <time title="创建时间：2019-12-10 19:52:56" itemprop="dateCreated datePublished" datetime="2019-12-10T19:52:56+08:00">2019-12-10</time>
+              <time title="创建时间：2018-06-27 11:15:59" itemprop="dateCreated datePublished" datetime="2018-06-27T11:15:59+08:00">2018-06-27</time>
             
 
             
@@ -386,7 +386,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/日常/" itemprop="url" rel="index"><span itemprop="name">日常</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/工具/" itemprop="url" rel="index"><span itemprop="name">工具</span></a></span>
 
                 
                 
@@ -420,17 +420,15 @@
       
 
       
-        <p>在装有openssl的系统中执行，window下可以使用win10子系统</p>
+        <p>使用java-agent方式激活intellij激活，有效期可到2089年</p>
 <a id="more"></a>
-<h1 id="通过openssl生成Key"><a href="#通过openssl生成Key" class="headerlink" title="通过openssl生成Key"></a>通过openssl生成Key</h1><p><code>openssl genrsa -out xxx 1024</code></p>
-<p>其中<code>xxx</code>指的是私钥存放的文件名</p>
-<h1 id="生成cert证书"><a href="#生成cert证书" class="headerlink" title="生成cert证书"></a>生成cert证书</h1><p><code>openssl req -new -x509 -key x1 -out x2 -days 3650 -subj /CN=x3</code></p>
-<ul>
-<li>x1是之前生成的私钥文件</li>
-<li>x2输出的地址</li>
-<li>x3是待绑定的域名</li>
-</ul>
-<h1 id="上传到阿里云"><a href="#上传到阿里云" class="headerlink" title="上传到阿里云"></a>上传到阿里云</h1><p>打开控制台，将生成的私钥文件及cert文件写到对应的文本框即可</p>
+<ol>
+<li>下载java-agent，<a href="/files/jetbrains-agent.jar">下载链接</a></li>
+<li>选择使用方式打开IDE，菜单栏点击<code>help-&gt;Edit Custom VM Options</code></li>
+<li>在最后一行添加agent，<code>-javaagent:/path/jetbrains-agent.jar</code>,<em>注意不同操作系统分隔符不同，windows下是:c\path\jetbrains-agent.jar</em></li>
+<li>重启IDE</li>
+<li>输入激活码<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3AGXEJXFK9-eyJsaWNlbnNlSWQiOiIzQUdYRUpYRks5IiwibGljZW5zZWVOYW1lIjoiaHR0cHM6Ly96aGlsZS5pbyIsImFzc2lnbmVlTmFtZSI6IiIsImFzc2lnbmVlRW1haWwiOiIiLCJsaWNlbnNlUmVzdHJpY3Rpb24iOiIiLCJjaGVja0NvbmN1cnJlbnRVc2UiOmZhbHNlLCJwcm9kdWN0cyI6W3siY29kZSI6IklJIiwiZmFsbGJhY2tEYXRlIjoiMjA4OS0wNy0wNyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkFDIiwiZmFsbGJhY2tEYXRlIjoiMjA4OS0wNy0wNyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9LHsiY29kZSI6IkRQTiIsImZhbGxiYWNrRGF0ZSI6IjIwODktMDctMDciLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJQUyIsImZhbGxiYWNrRGF0ZSI6IjIwODktMDctMDciLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJHTyIsImZhbGxiYWNrRGF0ZSI6IjIwODktMDctMDciLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJETSIsImZhbGxiYWNrRGF0ZSI6IjIwODktMDctMDciLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJDTCIsImZhbGxiYWNrRGF0ZSI6IjIwODktMDctMDciLCJwYWlkVXBUbyI6IjIwODktMDctMDcifSx7ImNvZGUiOiJSUzAiLCJmYWxsYmFja0RhdGUiOiIyMDg5LTA3LTA3IiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUkMiLCJmYWxsYmFja0RhdGUiOiIyMDg5LTA3LTA3IiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUkQiLCJmYWxsYmFja0RhdGUiOiIyMDg5LTA3LTA3IiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUEMiLCJmYWxsYmFja0RhdGUiOiIyMDg5LTA3LTA3IiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUk0iLCJmYWxsYmFja0RhdGUiOiIyMDg5LTA3LTA3IiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiV1MiLCJmYWxsYmFja0RhdGUiOiIyMDg5LTA3LTA3IiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiREIiLCJmYWxsYmFja0RhdGUiOiIyMDg5LTA3LTA3IiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiREMiLCJmYWxsYmFja0RhdGUiOiIyMDg5LTA3LTA3IiwicGFpZFVwVG8iOiIyMDg5LTA3LTA3In0seyJjb2RlIjoiUlNVIiwiZmFsbGJhY2tEYXRlIjoiMjA4OS0wNy0wNyIsInBhaWRVcFRvIjoiMjA4OS0wNy0wNyJ9XSwiaGFzaCI6IjEyNzk2ODc3LzAiLCJncmFjZVBlcmlvZERheXMiOjcsImF1dG9Qcm9sb25nYXRlZCI6ZmFsc2UsImlzQXV0b1Byb2xvbmdhdGVkIjpmYWxzZX0=-WGTHs6XpDhr+uumvbwQPOdlxWnQwgnGaL4eRnlpGKApEEkJyYvNEuPWBSrQkPmVpim/8Sab6HV04Dw3IzkJT0yTc29sPEXBf69+7y6Jv718FaJu4MWfsAk/ZGtNIUOczUQ0iGKKnSSsfQ/3UoMv0q/yJcfvj+me5Zd/gfaisCCMUaGjB/lWIPpEPzblDtVJbRexB1MALrLCEoDv3ujcPAZ7xWb54DiZwjYhQvQ+CvpNNF2jeTku7lbm5v+BoDsdeRq7YBt9ANLUKPr2DahcaZ4gctpHZXhG96IyKx232jYq9jQrFDbQMtVr3E+GsCekMEWSD//dLT+HuZdc1sAIYrw==-MIIElTCCAn2gAwIBAgIBCTANBgkqhkiG9w0BAQsFADAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBMB4XDTE4MTEwMTEyMjk0NloXDTIwMTEwMjEyMjk0NlowaDELMAkGA1UEBhMCQ1oxDjAMBgNVBAgMBU51c2xlMQ8wDQYDVQQHDAZQcmFndWUxGTAXBgNVBAoMEEpldEJyYWlucyBzLnIuby4xHTAbBgNVBAMMFHByb2QzeS1mcm9tLTIwMTgxMTAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5ndaik1GD0nyTdqkZgURQZGW+RGxCdBITPXIwpjhhaD0SXGa4XSZBEBoiPdY6XV6pOfUJeyfi9dXsY4MmT0D+sKoST3rSw96xaf9FXPvOjn4prMTdj3Ji3CyQrGWeQU2nzYqFrp1QYNLAbaViHRKuJrYHI6GCvqCbJe0LQ8qqUiVMA9wG/PQwScpNmTF9Kp2Iej+Z5OUxF33zzm+vg/nYV31HLF7fJUAplI/1nM+ZG8K+AXWgYKChtknl3sW9PCQa3a3imPL9GVToUNxc0wcuTil8mqveWcSQCHYxsIaUajWLpFzoO2AhK4mfYBSStAqEjoXRTuj17mo8Q6M2SHOcwIDAQABo4GZMIGWMAkGA1UdEwQCMAAwHQYDVR0OBBYEFGEpG9oZGcfLMGNBkY7SgHiMGgTcMEgGA1UdIwRBMD+AFKOetkhnQhI2Qb1t4Lm0oFKLl/GzoRykGjAYMRYwFAYDVQQDDA1KZXRQcm9maWxlIENBggkA0myxg7KDeeEwEwYDVR0lBAwwCgYIKwYBBQUHAwEwCwYDVR0PBAQDAgWgMA0GCSqGSIb3DQEBCwUAA4ICAQBonMu8oa3vmNAa4RQP8gPGlX3SQaA3WCRUAj6Zrlk8AesKV1YSkh5D2l+yUk6njysgzfr1bIR5xF8eup5xXc4/G7NtVYRSMvrd6rfQcHOyK5UFJLm+8utmyMIDrZOzLQuTsT8NxFpbCVCfV5wNRu4rChrCuArYVGaKbmp9ymkw1PU6+HoO5i2wU3ikTmRv8IRjrlSStyNzXpnPTwt7bja19ousk56r40SmlmC04GdDHErr0ei2UbjUua5kw71Qn9g02tL9fERI2sSRjQrvPbn9INwRWl5+k05mlKekbtbu2ev2woJFZK4WEXAd/GaAdeZZdumv8T2idDFL7cAirJwcrbfpawPeXr52oKTPnXfi0l5+g9Gnt/wfiXCrPElX6ycTR6iL3GC2VR4jTz6YatT4Ntz59/THOT7NJQhr6AyLkhhJCdkzE2cob/KouVp4ivV7Q3Fc6HX7eepHAAF/DpxwgOrg9smX6coXLgfp0b1RU2u/tUNID04rpNxTMueTtrT8WSskqvaJd3RH8r7cnRj6Y2hltkja82HlpDURDxDTRvv+krbwMr26SB/40BjpMUrDRCeKuiBahC0DCoU/4+ze1l94wVUhdkCfL0GpJrMSCDEK+XEurU18Hb7WT+ThXbkdl6VpFdHsRvqAnhR2g4b+Qzgidmuky5NUZVfEaZqV/g==</span><br></pre></td></tr></table></figure></li>
+</ol>
 
       
     </div>
@@ -449,6 +447,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/工具/" rel="tag"># 工具</a>
+          
+        </div>
+      
 
       
       
@@ -458,8 +462,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/12/10/develop/flinkAPI/" rel="next" title="flink实时计算之API的基本使用">
-                <i class="fa fa-chevron-left"></i> flink实时计算之API的基本使用
+              <a href="/2017/07/10/develop/kmp/" rel="next" title="字符串匹配之KMP">
+                <i class="fa fa-chevron-left"></i> 字符串匹配之KMP
               </a>
             
           </div>
@@ -468,8 +472,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/12/11/develop/flink使用场景/" rel="prev" title="flink使用场景">
-                flink使用场景 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/06/27/reading/乌合之众/" rel="prev" title="乌合之众">
+                乌合之众 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -521,17 +525,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -620,22 +615,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#通过openssl生成Key"><span class="nav-number">1.</span> <span class="nav-text">通过openssl生成Key</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成cert证书"><span class="nav-number">2.</span> <span class="nav-text">生成cert证书</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#上传到阿里云"><span class="nav-number">3.</span> <span class="nav-text">上传到阿里云</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
