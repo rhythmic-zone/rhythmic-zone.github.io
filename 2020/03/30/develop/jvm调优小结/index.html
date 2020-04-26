@@ -120,7 +120,7 @@
 <meta property="og:image" content="/images/jvm_section_2.png">
 <meta property="og:image" content="/images/jvm_section_3.png">
 <meta property="og:image" content="/images/jvm_section_4.png">
-<meta property="og:updated_time" content="2020-03-30T07:21:15.803Z">
+<meta property="og:updated_time" content="2020-03-31T01:43:41.709Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="jvm调优小结">
 <meta name="twitter:description" content="性能调优手段是写程序的一个必要手段，对于java程序来说，一般情况下只要将代码部分优化好就足够达到要求，不过在代码能优化到极致的情况下，我们就需要通过调节jvm参数使得程序进一步提升性能。">
@@ -423,7 +423,7 @@
 <li><p>永久代：主要存放元数据，例如Class、Method信息，与垃圾回收的关系不大。<em>在java8后去除了这一代，添加了Meta space</em></p>
 </li>
 </ul>
-<h1 id="优化案例"><a href="#优化案例" class="headerlink" title="优化案例"></a>优化案例</h1><h2 id="Minor-GC频繁"><a href="#Minor-GC频繁" class="headerlink" title="Minor GC频繁"></a>Minor GC频繁</h2><p>如果新生代所分配到的空间很小，Eden区很快就被填满，就会频繁出发Minor GC，因此适当增大新生代空间来降低Minor GC频率，比如新生代空间增大一倍，Eden区就会增加一倍(倍率不修改)，那么Minor GC次数就会减少一半</p>
+<h1 id="优化案例"><a href="#优化案例" class="headerlink" title="优化案例"></a>优化案例</h1><h2 id="Minor-GC频繁"><a href="#Minor-GC频繁" class="headerlink" title="Minor GC频繁"></a>Minor GC频繁</h2><p>如果新生代所分配到的空间很小，Eden区很快就被填满，就会频繁触发Minor GC，因此适当增大新生代空间来降低Minor GC频率，比如新生代空间增大一倍，Eden区就会增加一倍(倍率不修改)，那么Minor GC次数就会减少一半</p>
 <p>新生代的复制算法主要受对对象扫描的影响，相对来说复制的成本对于虚拟机来说非常低。</p>
 <p>同时对于程序中大部分都是临时对象的情况下，增加新生代空间，可以保证对象有效的被回收，避免因内存不足从而进入到老年代，这样Marjor GC频率也会降低</p>
 <p>对于程序中持久对象居多，那就要适当增加老年代空间</p>
@@ -431,7 +431,7 @@
 <p>CMS主要涉及如下四个阶段：1.初始标记，该阶段进行可达性分析，标记root能直接关联到的对象，速度很快 2.并发标记，由上一阶段标记过的对象出发，标记所有可达到的对象 3.重新标记(Stop the world)，暂停所有用户线程，重新扫描堆中的对象，进行可达性分析，标记还存活的对象，因为并发标记阶段是和用户线程并行的，这个过程中对象的引用可能会变化，所以这个阶段需要重新标记，防止部分活跃对象又指向了未标记的对象 4.并发清理，并发进行垃圾清理</p>
 <p><img src="/images/jvm_section_2.png" alt></p>
 <p>可见重新标记阶段需要扫描堆来判断对象是否存活，这个过程不能仅仅扫描老年代，因为老年代对象可能指向了新生代，正是因为这种跨代引用，jvm必须要扫描整个堆，因此堆中对象的数量就影响回收时间。<br>不过新生代对象大部分是朝生夕灭，所以在重新标记前执行一次Minor GC有助于降低回收时间。</p>
-<p>CMS就是采用了这种方式，在重新标记前增加了一个可中断的并发预清理，该阶段可以被中断，在Eden区使用超过2M时使用(可修改)，在这个阶段执行时等待Minor GC，同时避免Minor GC很久才会触发，增加 <code>CMSMaxAbortablePercleanTime</code> 默认5s，超过这个时间，就会中断直接扫描整个堆。当然也可以通过参数<code>CMSScavenageBeforeRemark</code>强制每次重新标记前强制进行一次Minor GC</p>
+<p>CMS就是采用了这种方式，在重新标记前增加了一个可中断的并发预清理，该阶段可以被中断，在Eden区使用超过2M时使用(可修改)，在这个阶段执行时等待Minor GC，同时避免Minor GC很久才会触发，增加 <code>CMSMaxAbortablePrecleanTime</code> 默认5s，超过这个时间，就会中断直接扫描整个堆。当然也可以通过参数<code>CMSScavengeBeforeRemark</code>强制每次重新标记前强制进行一次Minor GC</p>
 <p><img src="/images/jvm_section_3.png" alt></p>
 <p>CMS是老年代回收器，对于年轻代来说，清理的时候也是需要扫描整个堆来确认对象是否存活。JVM肯定不是全堆扫描的，因为老年代持有年轻代的数量非常小，所以引用了卡表来实现。</p>
 <p><img src="/images/jvm_section_4.png" alt></p>

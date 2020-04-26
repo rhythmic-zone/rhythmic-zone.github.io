@@ -8,7 +8,7 @@
       <link href="/2020/03/30/develop/jvm%E8%B0%83%E4%BC%98%E5%B0%8F%E7%BB%93/"/>
       <url>/2020/03/30/develop/jvm%E8%B0%83%E4%BC%98%E5%B0%8F%E7%BB%93/</url>
       
-        <content type="html"><![CDATA[<p>性能调优手段是写程序的一个必要手段，对于java程序来说，一般情况下只要将代码部分优化好就足够达到要求，不过在代码能优化到极致的情况下，我们就需要通过调节jvm参数使得程序进一步提升性能。</p><a id="more"></a><h1 id="JVM内存结构"><a href="#JVM内存结构" class="headerlink" title="JVM内存结构"></a>JVM内存结构</h1><p>简单的介绍下jvm内存结构及垃圾回收算法</p><p>当代主流虚拟机(Hotspot VM)的垃圾回收都采用分代回收的算法。分代回收是基于不同的对象生命周期不同，所以采用不同的回收方式提升回收效率</p><p>Hotspot VM将内存划分为不同的物理区，如下图所示:<br><img src="/images/jvm_section_1.png" alt></p><ul><li>新生代： 除了大对象，堆内对象基本都是在这一代中被创建，其中很多对象的生命周期很短。每次新生代垃圾回收(Minor GC)后只有少量对象能存活，所以JVM采用复制算法，只需要少量的复制成本就可以完成回收。</li></ul><p>新生代内分为三个区：一个Eden区，两个Survivor区，大部分对象都在Eden区中生成，当Eden区满后，当前还存活的对象都会被复制到两个Survivor区中的一个，当其中一个Survivor区满时，不满足”晋升“的对象将被复制到两一个Survivor区。“晋升”指的是：对象每经历一次Minor GC，年龄+1，达到阈值后，对象就会被放到老年代。这个阈值就直接影响着对象在新生代的停留时间，在Serial和ParNew GC这两种垃圾回收器中，可以通过<code>MaxTenuringThreshold</code>的设定，默认15</p><p>JVM中还有“动态年龄计算”的概念。虚拟机在遍历所有对象时，按照年龄从小到大进行累计，当某个年龄的累计超过Survivor区的一半时，就取这个年龄和MaxTenuringThreshold的最小值作为新的阈值。这个概念主要基于以下的考虑：1. 如果按照固定的阈值最为晋升条件，如果阈值过大，会导致Survivor区内存溢出到老年代。2.相同应用在不同的时间表现都可能不同，如果阈值固定，就无法很好适应这个变化</p><ul><li><p>老年代：在新生代中经历N次Minor GC后的对象都处于这一代（包括大对象），该区域对象的存活率高。老年代又称Marjor GC,通常使用标记-清理或者标记-整理算法。整个堆的垃圾回收(包括新生代跟老年代)称为 Full GC。<em>在Hotspot中，除了CMS之外，其他能收集老年代的GC都回同时收集整个GC堆，包括新生代）</em></p></li><li><p>永久代：主要存放元数据，例如Class、Method信息，与垃圾回收的关系不大。<em>在java8后去除了这一代，添加了Meta space</em></p></li></ul><h1 id="优化案例"><a href="#优化案例" class="headerlink" title="优化案例"></a>优化案例</h1><h2 id="Minor-GC频繁"><a href="#Minor-GC频繁" class="headerlink" title="Minor GC频繁"></a>Minor GC频繁</h2><p>如果新生代所分配到的空间很小，Eden区很快就被填满，就会频繁出发Minor GC，因此适当增大新生代空间来降低Minor GC频率，比如新生代空间增大一倍，Eden区就会增加一倍(倍率不修改)，那么Minor GC次数就会减少一半</p><p>新生代的复制算法主要受对对象扫描的影响，相对来说复制的成本对于虚拟机来说非常低。</p><p>同时对于程序中大部分都是临时对象的情况下，增加新生代空间，可以保证对象有效的被回收，避免因内存不足从而进入到老年代，这样Marjor GC频率也会降低</p><p>对于程序中持久对象居多，那就要适当增加老年代空间</p><h2 id="高峰期发生GC"><a href="#高峰期发生GC" class="headerlink" title="高峰期发生GC"></a>高峰期发生GC</h2><p>前提：老年代采用CMS回收器</p><p>CMS主要涉及如下四个阶段：1.初始标记，该阶段进行可达性分析，标记root能直接关联到的对象，速度很快 2.并发标记，由上一阶段标记过的对象出发，标记所有可达到的对象 3.重新标记(Stop the world)，暂停所有用户线程，重新扫描堆中的对象，进行可达性分析，标记还存活的对象，因为并发标记阶段是和用户线程并行的，这个过程中对象的引用可能会变化，所以这个阶段需要重新标记，防止部分活跃对象又指向了未标记的对象 4.并发清理，并发进行垃圾清理</p><p><img src="/images/jvm_section_2.png" alt></p><p>可见重新标记阶段需要扫描堆来判断对象是否存活，这个过程不能仅仅扫描老年代，因为老年代对象可能指向了新生代，正是因为这种跨代引用，jvm必须要扫描整个堆，因此堆中对象的数量就影响回收时间。<br>不过新生代对象大部分是朝生夕灭，所以在重新标记前执行一次Minor GC有助于降低回收时间。</p><p>CMS就是采用了这种方式，在重新标记前增加了一个可中断的并发预清理，该阶段可以被中断，在Eden区使用超过2M时使用(可修改)，在这个阶段执行时等待Minor GC，同时避免Minor GC很久才会触发，增加 <code>CMSMaxAbortablePercleanTime</code> 默认5s，超过这个时间，就会中断直接扫描整个堆。当然也可以通过参数<code>CMSScavenageBeforeRemark</code>强制每次重新标记前强制进行一次Minor GC</p><p><img src="/images/jvm_section_3.png" alt></p><p>CMS是老年代回收器，对于年轻代来说，清理的时候也是需要扫描整个堆来确认对象是否存活。JVM肯定不是全堆扫描的，因为老年代持有年轻代的数量非常小，所以引用了卡表来实现。</p><p><img src="/images/jvm_section_4.png" alt></p><p>卡表的具体策略是将老年代划分成若干个大小为512B的卡，本身是一个单字节数组，每个元素对应一张卡，当发生老年代引用新生代时，就在对应的卡上设置，之后Minor GC时直接从卡中识别，总的来说就是设置索引，避免全堆扫描。</p><h2 id="Full-GC扫描"><a href="#Full-GC扫描" class="headerlink" title="Full GC扫描"></a>Full GC扫描</h2><p>Perm空间不足，老年代空间不足，需要晋级的年轻代对象数量超过老年代剩余的空间，主动触发等这几种情况都会触发Full GC。对于Full GC不正常时可按照这几种情况来分析。</p><p>对于jdk8，永久代被元空间取缔，元空间时直接存在内存中。</p>]]></content>
+        <content type="html"><![CDATA[<p>性能调优手段是写程序的一个必要手段，对于java程序来说，一般情况下只要将代码部分优化好就足够达到要求，不过在代码能优化到极致的情况下，我们就需要通过调节jvm参数使得程序进一步提升性能。</p><a id="more"></a><h1 id="JVM内存结构"><a href="#JVM内存结构" class="headerlink" title="JVM内存结构"></a>JVM内存结构</h1><p>简单的介绍下jvm内存结构及垃圾回收算法</p><p>当代主流虚拟机(Hotspot VM)的垃圾回收都采用分代回收的算法。分代回收是基于不同的对象生命周期不同，所以采用不同的回收方式提升回收效率</p><p>Hotspot VM将内存划分为不同的物理区，如下图所示:<br><img src="/images/jvm_section_1.png" alt></p><ul><li>新生代： 除了大对象，堆内对象基本都是在这一代中被创建，其中很多对象的生命周期很短。每次新生代垃圾回收(Minor GC)后只有少量对象能存活，所以JVM采用复制算法，只需要少量的复制成本就可以完成回收。</li></ul><p>新生代内分为三个区：一个Eden区，两个Survivor区，大部分对象都在Eden区中生成，当Eden区满后，当前还存活的对象都会被复制到两个Survivor区中的一个，当其中一个Survivor区满时，不满足”晋升“的对象将被复制到两一个Survivor区。“晋升”指的是：对象每经历一次Minor GC，年龄+1，达到阈值后，对象就会被放到老年代。这个阈值就直接影响着对象在新生代的停留时间，在Serial和ParNew GC这两种垃圾回收器中，可以通过<code>MaxTenuringThreshold</code>的设定，默认15</p><p>JVM中还有“动态年龄计算”的概念。虚拟机在遍历所有对象时，按照年龄从小到大进行累计，当某个年龄的累计超过Survivor区的一半时，就取这个年龄和MaxTenuringThreshold的最小值作为新的阈值。这个概念主要基于以下的考虑：1. 如果按照固定的阈值最为晋升条件，如果阈值过大，会导致Survivor区内存溢出到老年代。2.相同应用在不同的时间表现都可能不同，如果阈值固定，就无法很好适应这个变化</p><ul><li><p>老年代：在新生代中经历N次Minor GC后的对象都处于这一代（包括大对象），该区域对象的存活率高。老年代又称Marjor GC,通常使用标记-清理或者标记-整理算法。整个堆的垃圾回收(包括新生代跟老年代)称为 Full GC。<em>在Hotspot中，除了CMS之外，其他能收集老年代的GC都回同时收集整个GC堆，包括新生代）</em></p></li><li><p>永久代：主要存放元数据，例如Class、Method信息，与垃圾回收的关系不大。<em>在java8后去除了这一代，添加了Meta space</em></p></li></ul><h1 id="优化案例"><a href="#优化案例" class="headerlink" title="优化案例"></a>优化案例</h1><h2 id="Minor-GC频繁"><a href="#Minor-GC频繁" class="headerlink" title="Minor GC频繁"></a>Minor GC频繁</h2><p>如果新生代所分配到的空间很小，Eden区很快就被填满，就会频繁触发Minor GC，因此适当增大新生代空间来降低Minor GC频率，比如新生代空间增大一倍，Eden区就会增加一倍(倍率不修改)，那么Minor GC次数就会减少一半</p><p>新生代的复制算法主要受对对象扫描的影响，相对来说复制的成本对于虚拟机来说非常低。</p><p>同时对于程序中大部分都是临时对象的情况下，增加新生代空间，可以保证对象有效的被回收，避免因内存不足从而进入到老年代，这样Marjor GC频率也会降低</p><p>对于程序中持久对象居多，那就要适当增加老年代空间</p><h2 id="高峰期发生GC"><a href="#高峰期发生GC" class="headerlink" title="高峰期发生GC"></a>高峰期发生GC</h2><p>前提：老年代采用CMS回收器</p><p>CMS主要涉及如下四个阶段：1.初始标记，该阶段进行可达性分析，标记root能直接关联到的对象，速度很快 2.并发标记，由上一阶段标记过的对象出发，标记所有可达到的对象 3.重新标记(Stop the world)，暂停所有用户线程，重新扫描堆中的对象，进行可达性分析，标记还存活的对象，因为并发标记阶段是和用户线程并行的，这个过程中对象的引用可能会变化，所以这个阶段需要重新标记，防止部分活跃对象又指向了未标记的对象 4.并发清理，并发进行垃圾清理</p><p><img src="/images/jvm_section_2.png" alt></p><p>可见重新标记阶段需要扫描堆来判断对象是否存活，这个过程不能仅仅扫描老年代，因为老年代对象可能指向了新生代，正是因为这种跨代引用，jvm必须要扫描整个堆，因此堆中对象的数量就影响回收时间。<br>不过新生代对象大部分是朝生夕灭，所以在重新标记前执行一次Minor GC有助于降低回收时间。</p><p>CMS就是采用了这种方式，在重新标记前增加了一个可中断的并发预清理，该阶段可以被中断，在Eden区使用超过2M时使用(可修改)，在这个阶段执行时等待Minor GC，同时避免Minor GC很久才会触发，增加 <code>CMSMaxAbortablePrecleanTime</code> 默认5s，超过这个时间，就会中断直接扫描整个堆。当然也可以通过参数<code>CMSScavengeBeforeRemark</code>强制每次重新标记前强制进行一次Minor GC</p><p><img src="/images/jvm_section_3.png" alt></p><p>CMS是老年代回收器，对于年轻代来说，清理的时候也是需要扫描整个堆来确认对象是否存活。JVM肯定不是全堆扫描的，因为老年代持有年轻代的数量非常小，所以引用了卡表来实现。</p><p><img src="/images/jvm_section_4.png" alt></p><p>卡表的具体策略是将老年代划分成若干个大小为512B的卡，本身是一个单字节数组，每个元素对应一张卡，当发生老年代引用新生代时，就在对应的卡上设置，之后Minor GC时直接从卡中识别，总的来说就是设置索引，避免全堆扫描。</p><h2 id="Full-GC扫描"><a href="#Full-GC扫描" class="headerlink" title="Full GC扫描"></a>Full GC扫描</h2><p>Perm空间不足，老年代空间不足，需要晋级的年轻代对象数量超过老年代剩余的空间，主动触发等这几种情况都会触发Full GC。对于Full GC不正常时可按照这几种情况来分析。</p><p>对于jdk8，永久代被元空间取缔，元空间时直接存在内存中。</p>]]></content>
       
       
       
@@ -54,9 +54,9 @@
       
         <tags>
             
-            <tag> java </tag>
-            
             <tag> dubbo </tag>
+            
+            <tag> java </tag>
             
         </tags>
       
@@ -107,9 +107,9 @@
       
         <tags>
             
-            <tag> flink </tag>
-            
             <tag> java </tag>
+            
+            <tag> flink </tag>
             
         </tags>
       
@@ -134,9 +134,9 @@
       
         <tags>
             
-            <tag> flink </tag>
-            
             <tag> java </tag>
+            
+            <tag> flink </tag>
             
         </tags>
       
@@ -161,9 +161,9 @@
       
         <tags>
             
-            <tag> flink </tag>
-            
             <tag> java </tag>
+            
+            <tag> flink </tag>
             
         </tags>
       
