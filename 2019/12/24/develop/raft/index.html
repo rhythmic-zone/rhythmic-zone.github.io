@@ -1,35 +1,1460 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ title }}{% endblock %}
-
-{% block page_class %}page-post-detail{% endblock %}
 
 
-{% block content %}
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="raft是通过管理日志复制的一致性算法。它等价于paxos，并且同样高效，不过在结构上有所不同，raft比paxos更容易理解，因为在实际系统中更容易落地。为追求易理解性，raft将一致性关键要素分成：领导选举（leader election),日志复制（log replication）,以及安全性，并执行更高级别的一致性必须考虑的状态数。从用户学习的效果来看，raft更容易被掌握。此外，raft">
+<meta property="og:type" content="article">
+<meta property="og:title" content="raft一致性算法">
+<meta property="og:url" content="https://rhythmic-zone.github.io/2019/12/24/develop/raft/index.html">
+<meta property="og:site_name" content="rhythmic-zone">
+<meta property="og:description" content="raft是通过管理日志复制的一致性算法。它等价于paxos，并且同样高效，不过在结构上有所不同，raft比paxos更容易理解，因为在实际系统中更容易落地。为追求易理解性，raft将一致性关键要素分成：领导选举（leader election),日志复制（log replication）,以及安全性，并执行更高级别的一致性必须考虑的状态数。从用户学习的效果来看，raft更容易被掌握。此外，raft">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/consensus/raft1.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/consensus/a63f12ba8d5b7d68ca1a016257370022.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/consensus/d8a50a2705e4b3d0bac2084961d9e22d.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/consensus/0a7a377ab90034e62883a6049bd6d73e.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/consensus/8e91b9306a84ae3e3685d75ae024ebfe.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/consensus/fa933b96f1cb688befc825c3d82c167d.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/consensus/6b7f4bdd4ab11b6c9c348307778753f7.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/consensus/2f2d0eea6c824382b881ad77dcc38061.png">
+<meta property="article:published_time" content="2019-12-24T08:22:43.000Z">
+<meta property="article:modified_time" content="2022-12-12T08:52:36.180Z">
+<meta property="article:author" content="blue">
+<meta property="article:tag" content="java,工具,生活">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rhythmic-zone.github.io/images/consensus/raft1.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://rhythmic-zone.github.io/2019/12/24/develop/raft/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>raft一致性算法 | rhythmic-zone</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">rhythmic-zone</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rhythmic-zone.github.io/2019/12/24/develop/raft/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="blue">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rhythmic-zone">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">raft一致性算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-12-24 16:22:43" itemprop="dateCreated datePublished" datetime="2019-12-24T16:22:43+08:00">2019-12-24</time>
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>raft是通过管理日志复制的一致性算法。它等价于paxos，并且同样高效，不过在结构上有所不同，raft比paxos更容易理解，因为在实际系统中更容易落地。为追求易理解性，raft将一致性关键要素分成：<strong>领导选举</strong>（leader election),<strong>日志复制</strong>（log replication）,以及<strong>安全性</strong>，并执行更高级别的一致性必须考虑的状态数。从用户学习的效果来看，raft更容易被掌握。此外，raft引入了一种新机制来支持集群成员变更，以重叠过半数来保证安全性。</p>
+<span id="more"></span>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>一致性算法让多台机器组成一个统一连贯的整体，而不受某些成员故障的影响。因此，这类算法在构建高可用海量软件系统中扮演者重要角色，过去几十年，paxos算法一直是这个领域的主宰，大部分一致性算法要么基于paxos要么从其衍生而来，paxos也成为一致性算法教学的重要工具。</p>
+<p>raft用到了不少设计技巧，包括：<strong>问题分解</strong>（分解成领袖选举，日志复制以及安全性三个子问题），以及<strong>状态规模缩减</strong>（与paxos相比，raft降低了不确定性以及服务间的不一致的可能）</p>
+<p>raft与现有的一致性算法有不少相似之处，但以下特征有明显的不同：</p>
+<ul>
+<li>强领袖：与其他一致性算法相比，raft采用了一种更强势的领袖模式。例如，日志条目只从领袖流向其他服务器。这样坐简化了日志复制管理。</li>
+<li>领袖选举：raft采用了<strong>随机计时器</strong>实现领袖选举。这种做法仅在服务器心跳基础上加了少量的处理机制，既可以简单迅速的解决选举冲突。</li>
+<li>成员变更：raft采用联合一致性(jolin consensus)，这个特性使得集群可以在配置调整时不中断服务。</li>
+</ul>
+<h1 id="复制状态机"><a href="#复制状态机" class="headerlink" title="复制状态机"></a>复制状态机</h1><p>一致性算法通常在<strong>复制状态机</strong>（replicated state machines）上下文产生。这种方法要求在服务器集群上运行一样的状态机副本，就算一些服务器故障也不受影响。复制状态机用于解决分布式系统中的容错问题。</p>
+<p><img src="/images/consensus/raft1.png" alt=""></p>
+<p>复制状态机一般通过日志复制来实现，每台服务器用一个日志保存命令序列，并由状态机依次执行。每个日志包含相同的命令，顺序也一样，因此每个状态机处理的命令序列都是一样的，由于状态机时可确定的，计算将得到相同的状态并输出相同的结果。</p>
+<p>确保日志副本一致性是一致性算法的主要工作。一致性模块接收来自客户端的命令并写到本地日志，它同时与其他服务器通讯，以保证每个日志最终以相同的顺序包含相同的请求，即便有服务器故障也是如此。一旦命令正确的复制，每台服务器将按照顺序进行处理，并将结果返回给客户端，这样一来服务器集群便形成单一的高可用状态机。</p>
+<p>一个可用于生产系统的一致性算法需要以下特性：</p>
+<ul>
+<li>在所有非拜占庭条件下保证安全性（不返回错误结果），包括网络延迟，分区，丢包等等</li>
+<li>只要过半数服务器正常，就可以保证系统的可用性，因此，一个由5台服务器组成的集群，能够容忍任意两台服务器故障，服务器关机也认为是故障；服务器恢复后可以从持久存储中恢复状态并重新加入集群</li>
+<li>不依赖时许保证日志一致性：时钟故障，消息延迟最多影响可用性</li>
+<li>一般情况下，只要过半机器相应相关远程调用，命令便算完成；少部分机器相应缓慢不能影响系统性能</li>
+</ul>
+<h1 id="raft一致性算法"><a href="#raft一致性算法" class="headerlink" title="raft一致性算法"></a>raft一致性算法</h1><p>实现思路：选举一个<strong>领袖节点</strong>，由该节点全权负责管理复制日志。领袖服务器从客户端接收日志条目，复制到其他服务器上并在合适的时机通知他们应用到状态机。引入领袖这个角色后，对复制日志的管理就变得简单了，因为领袖可以自行决定并保存条目，无须与其他服务器协商，数据流也简单，当其与其他服务器失去联系后会进行重新选举。</p>
+<h2 id="raft要点"><a href="#raft要点" class="headerlink" title="raft要点"></a>raft要点</h2><p>所有服务器均保存以下<strong>持久状态</strong>（响应RPC请求前需要更新到持久性存储介质）</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>currentTerm</td>
+<td>服务器当前任期编号，及其所见的最新任期编号（第一次启动初始化0，后续单调递增）</td>
+</tr>
+<tr>
+<td>voteFor</td>
+<td>在当前任期得到选票的候选人ID,不存在则为空</td>
+</tr>
+<tr>
+<td>log[]</td>
+<td>日志条目线性表；每个条目包含一条状态机命令以及领袖接收到命令的任期编号（索引从1开始）</td>
+</tr>
+</tbody>
+</table>
+<p>所有服务器保存以下 <strong>非持久状态</strong></p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>commitIndex</td>
+<td>最后一个已提交条目的索引（初始化为0 ，后续单调递增</td>
+</tr>
+<tr>
+<td>lastAppied</td>
+<td>最后一个已经应用到状态机条目的索引（初始化为0，后续单调递增</td>
+</tr>
+</tbody>
+</table>
+<p>领袖 还保存以下<strong>非持久状态</strong>（选举后重新初始化）</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nextIndex[]</td>
+<td>记录发送到每个服务器的下一个日志条目的索引（初始化为领导者的上一个日志索引+ 1）</td>
+</tr>
+<tr>
+<td>matchIndex[]</td>
+<td>记录各服务器最后复制条目的索引（初始化为0 ，后续单调递增</td>
+</tr>
+</tbody>
+</table>
+<h2 id="AppendEntries-RPC"><a href="#AppendEntries-RPC" class="headerlink" title="AppendEntries RPC"></a>AppendEntries RPC</h2><p>领袖调用该RPC往其他服务器复制日志条目，也用于交换心跳</p>
+<p>该RPC所需参数如下：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>term</td>
+<td>领袖任期</td>
+</tr>
+<tr>
+<td>leaderId</td>
+<td>领袖ID,属下后续可据此重定向客户端请求</td>
+</tr>
+<tr>
+<td>prevLogIndex</td>
+<td>上一条目索引</td>
+</tr>
+<tr>
+<td>prevLogTerm</td>
+<td>上一条目任期</td>
+</tr>
+<tr>
+<td>entries[]</td>
+<td>被复制日志条目（心跳则为空；出于性能考虑可以批量发送</td>
+</tr>
+<tr>
+<td>leaderCommit</td>
+<td>领袖已提交条目索引</td>
+</tr>
+</tbody>
+</table>
+<p>返回</p>
+<table>
+<thead>
+<tr>
+<th>返回值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>term</td>
+<td>接收者当前任期，领袖据此更新自身任期</td>
+</tr>
+<tr>
+<td>success</td>
+<td>如果属下包含于prevLongIndex和prevLogTerm吻合的条目，则返回成功</td>
+</tr>
+</tbody>
+</table>
+<p>接收服务器需实现以下处理逻辑：</p>
+<ol>
+<li>如果任期编号比本地小 <code>term &lt; currentTerm</code> 则返回失败</li>
+<li>如果属下在prevLongIndex 索引处不包含prevLogTerm任期条目，则返回失败</li>
+<li>如果属下有条目与新条目冲突（索引相同任期不同），则删除该条目以及所有后续条目</li>
+<li>追加所有未在日志中的新条目</li>
+<li>如果 leaderCommit &gt; commitIndex 则将commitIndex更新为leaderCommit以及最后新条目索引的较小值</li>
+</ol>
+<h2 id="RequestVote-RPC"><a href="#RequestVote-RPC" class="headerlink" title="RequestVote RPC"></a>RequestVote RPC</h2><p>候选人调用该RPC收集选票</p>
+<p>参数列表</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>term</td>
+<td>候选人任期</td>
+</tr>
+<tr>
+<td>candidateId</td>
+<td>候选人id</td>
+</tr>
+<tr>
+<td>lastLogIndex</td>
+<td>日志最后条目索引</td>
+</tr>
+<tr>
+<td>lastLogTerm</td>
+<td>日志最后条目任期</td>
+</tr>
+</tbody>
+</table>
+<p>返回</p>
+<table>
+<thead>
+<tr>
+<th>返回值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>term</td>
+<td>接收者当前任期，候选人据此可更新自身任期</td>
+</tr>
+<tr>
+<td>voteGranted</td>
+<td>是否接收当前候选人的投票</td>
+</tr>
+</tbody>
+</table>
+<p>接收服务器需要实现以下逻辑：</p>
+<ol>
+<li>如果任期编号小于当前任期编号，<code>term &lt; currentTerm</code>,拒绝该请求</li>
+<li>如果接收者 votedFor为空或者等于candidateId,<strong>而且候选人日志至少与接收者本地一样新</strong>，则投出选票</li>
+</ol>
+<h2 id="服务器规则"><a href="#服务器规则" class="headerlink" title="服务器规则"></a>服务器规则</h2><p>所有服务器</p>
+<ul>
+<li>如果 <code>commitIndex &gt; lastApplied</code>,则自增lastApplied,并将<code>log[lastApplied]</code>条目应用到状态机</li>
+<li>如果RPC请求或响应所带任期比当前大 <code>T &gt; currentTerm</code> 则更新当前任期 <code>currentTerm == T</code>,并转成属下</li>
+</ul>
+<p>属下：</p>
+<ul>
+<li>响应来自领袖及候选人的RPC请求</li>
+<li>选举超时时间耗尽而未收到领袖的AppendEntries RPC请求，且未给其他候选人投票，则转为候选人</li>
+</ul>
+<p>候选人：</p>
+<ul>
+<li>转换到候选人后开始选举<ul>
+<li>自增当前任期</li>
+<li>为自己投票</li>
+<li>重置选举计时器</li>
+<li>向所有其他服务器发起 RequestVote RPC请求</li>
+</ul>
+</li>
+<li>如果收到过半数服务器的选票，则成为领袖</li>
+<li>如果收到新领袖 AppendEntries RPC，转成属下</li>
+<li>如果选举（计时器）超时，则重新发起选举</li>
+</ul>
+<p>领袖：</p>
+<ul>
+<li>赢得选举后，空闲时循环发送 AppendEntries RPC请求（心跳），避免其他服务器选举超时</li>
+<li>收到客户端命令后往本地日志追加新条目，等条目应用到状态机后才向客户端响应结果（<strong>先追加到本地日志，然后往其他机器复制，过半机器复制成功后应用状态，成功后响应客户端</strong>）</li>
+<li>如果最后条目索引大于等于属下下个索引，即<code>lastIndex &gt;= nextIndex</code>，则发起AppendEntries RPC追加从nextIndex开始的日志<ul>
+<li>请求成功，则更新属下nextIndex以及matchIndex</li>
+<li>请求因日志不一致而失败；下调nextIndex并重试</li>
+</ul>
+</li>
+<li>更新<code>commitIndex = N</code>,如果数值N同时满足以下条件<ul>
+<li><code>N &gt; commitIndex</code></li>
+<li>过半属下matchIndex 不小于 N,及<code>matchIndex[i] &gt;= N</code></li>
+<li><code>log[N].term == currentTerm</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="关键性质"><a href="#关键性质" class="headerlink" title="关键性质"></a>关键性质</h2><ul>
+<li>选举安全性：任意任期内最多选举出一个领袖</li>
+<li>领袖只追加：领袖只能追加新日志条目；不能修改也不能删除已有条目</li>
+<li>日志拼接性：两个日志某个条目索引相同且任期相同，则前面条目也完全相同</li>
+<li>领袖完整性：日志条目只要被提交，后续任期领袖一定包含该条目</li>
+<li>状态机安全性：服务器将日志条目应用到状态机后，其他服务器无法在相同索引下应用另一个不同条目 </li>
+</ul>
+<p>raft集群由若干服务器组成，任何时刻每台服务器都处于以下三种状态：</p>
+<ul>
+<li>领袖（leader）</li>
+<li>属下（follower)</li>
+<li>候选人（candidate）<br>正常情况下，刚好有一个领袖，而所有其他服务器则都是属下。属下节点是被动的：他们自身不发起任何请求，相反只是简单响应领袖以及候选人的请求。领袖节点负责处理所有客户端请求（客户端请求属下节点将被重定向到领袖节点）。候选人则是用来选举新的领袖。</li>
+</ul>
+<p><img src="/images/consensus/a63f12ba8d5b7d68ca1a016257370022.png" alt=""><br>图中 属下节点之响应来自其他服务器的请求，如果有一个属下节点没有收到任何消息，则自身升级成候选人发起一次选举，收到集群过半票数则将成为新的领袖。</p>
+<p>raft将时间划分成任意的任期（term)，以连续整数进行编号，每个任期以一次选举开始，选举中一台或者堕胎候选人尝试成为领袖。一个候选人赢得选举后，在任期内都处于领袖身份。在某些场景下会以<strong>分裂投票</strong>结束。这种情况下，任期因领袖缺失而结束；raft确保任意任期内最多只有一个领袖。</p>
+<p><img src="/images/consensus/d8a50a2705e4b3d0bac2084961d9e22d.png" alt=""></p>
+<p>服务器可能在不同时间点观察到任期更替，某些情况下也可能观察到选举。甚至是整个任期。任期在raft中扮演<strong>逻辑时钟</strong>的角色，辅助服务器检查过期信息，例如领袖。每台服务器保存当前任期号，该编号单调递增。服务器通讯交换当前任期编号；某台服务器任期编号比其他服务器小，则将更新自己的任期编号。如果候选人或者领袖发现自身任期过期，则立即将自身转成属下状态，如果某台服务器收到一个带旧编号的请求，则拒绝该请求。</p>
+<p>raft服务器通过RPC通讯，一致性算法需要两种不同的RPC，候选人在选举期间调用<strong>RquestVote</strong>发起投票；选举成功后调用<strong>AppendEntries</strong>来复制日志并保持心跳。服务器在没有收到响应时及时重发RPC并通过并发提升性能。</p>
+<h2 id="领袖选举"><a href="#领袖选举" class="headerlink" title="领袖选举"></a>领袖选举</h2><p>Raft采用<strong>心跳机制</strong>来触发领袖选举，服务器启动后以属下角色运行。只要它不断收到领袖或者候选人的RPC请求，则保持属下状态不变。领袖发送周期性的心跳，以保持领导权。如果属下超过一定时间（<strong>超时时间</strong>）没有收到任何心跳，则发起新的选举。</p>
+<p>为发起选举，属下自身自身任期，并转换成候选人。随后为自身投票，同时向其他服务器发起<strong>RequestVote</strong>请求，候选人持续这个状态直到以下情形：</p>
+<ul>
+<li>候选人赢得选举</li>
+<li>另一台机器以领袖身份连接候选人。</li>
+<li>超过设定时间但未选举成功</li>
+</ul>
+<p>如果后台人在同个任期内收到过半数的投票，它将赢得选举。每台机器在一个任期内最多只能给一个候选人赢得选举。一旦候选人赢得选举，它将成为领袖。随后它向其他服务器发送心跳信息，建立领导权并阻止新的选举。</p>
+<p>在等待投票时，候选人可能收到其他服务器为宣示领导权而发来的<strong>AppendEntries</strong>请求，如果来源领袖任期至少与候选人一样大，候选人便认为领袖合法，并重回属下身份，相反拒绝该请求，保持候选人状态。</p>
+<p>第三种情况是：候选人既没有赢得选举，也没有输掉选举：如果多个属下同时转变成候选人，选票可能分裂，导致谁都无法获得过半选票。这种情况下候选人会超时并开启一次新的选举–自增任期并开始下一轮<strong>RequestVote</strong>，然而如果没有额外的信息，选票分裂可能会不断出现。</p>
+<p>Raft采用<strong>随机化选举超时间</strong>，分裂投票很罕见，就算出现也可以迅速解决。首先是防止投票分裂–在固定区间内（如150~300ms）随机一个超时时间，这种做法的好处是服务器超时时间被分散，大部分情况下只有一台机器超时；它将赢得选举并在其他机器超时前发送心跳。其次是应对分裂，做法也是类似。每个候选人在选举开始时开启一个随机定时器，时间耗尽后才能发起下一次选举，错开选举时间。</p>
+<h2 id="日志复制"><a href="#日志复制" class="headerlink" title="日志复制"></a>日志复制</h2><p>领袖被选举出来之后，开始服务。每个客户端氢气包含一个可以被复制状态机执行的命令。领袖将命令置为新条目追加到本地日志，然后发起<strong>AppendEntries</strong>请求往其他机器复制该条目。一旦条目安全的复制（复制到过半机器），领袖将条目应用到自身的状态机并执行结果告知客户端。如果属下节点宕机、响应慢、网络丢包，领袖将不断重试，直到该节点日志同步（就算过半数已经响应并响应给客户端，后续还是会继续这个重试步骤）</p>
+<p><img src="/images/consensus/0a7a377ab90034e62883a6049bd6d73e.png" alt=""><br>每个日志条目包含一个状态及命令，以及领袖节点收到该命令时的任期编号。任期编号用于检测日志的一致性，以保证<a href="#关键性质">关键性质</a>，日志中还包含一个整数索引编号，以区分其在日志中的位置。</p>
+<p>领袖决定何时将日志条目安全应用到状态机，这样的条目成为已提交（committed)。raft保证所有已提交的条目都是持久的，可以被所有可用状态机执行。一旦日志条目被其创建领袖复制到过半机器，便视作已提交。与此同时，领袖日志内所有牵制条目，也视作<strong>已提交</strong>。领袖追踪其知悉的已提交条目的最大索引，并在后续的<strong>AppendEntries</strong>告知其他服务器，属下发现日志条目已提交后，将其应用到状态机。</p>
+<p>设计日志的目的是让不同机器上的日志保持高度一致。这样简化了系统行为并使其更加可以预测，这个是确保安全性的关键因素。raft保证以下两个特性，构成日志拼接性：</p>
+<ul>
+<li>如果不同日志内两个条目的索引以及任期编号相同，那么存储的命令也相同</li>
+<li>如果不同日志内两个条目的索引以及任期编号相同，那么所有前置条目也都相同</li>
+</ul>
+<p>第一个性质：给定任期内，领袖最多只能创建一条给定索引的日志条目；而且条目在日志的顺序不能修改。第二个性能由<strong>AppendEntries</strong>请求进行简单一致性检查来保证。发起<strong>AppendEntries</strong>，领袖也会带上前一日志条目的索引以及任期编号。属下节点如果找不到对应的条目，它将拒绝新条目，一致性检查递归的发挥作用：初始时，日志状态为空，满足日志拼接性；一致性检查确保日志扩展时继续保证日志的拼接性。因此，只要<strong>AppendEntries</strong>成功返回，领袖便知道属下日志至少到新条目为止与自己保持一致。</p>
+<p>正常情况下领袖与属下是一致的。然而领袖故障可能导致日志不一致（例如旧领导还没将日志复制到其他机器）<br>日志缺失或者多余的情况下会持续若干个任期<br><img src="/images/consensus/8e91b9306a84ae3e3685d75ae024ebfe.png" alt=""><br>当顶部的领袖节点启动后，从属节点可能存在的各种可能：属下节点可能缺失部分日志（a~b）；也可能包含多余未提交日志（c~d）；或者同时出现（e~f）。情景f可能是这样产生的：该服务器是任期2的领袖，追加了日志后但是还没提交就宕机了；然后其迅速重启，在任期3继续担任领袖，又追加了部分日志，在提交前又宕机，错过了之后的几个任期。</p>
+<p>raft算法中，领袖强制其他服务器复制自己的日志，以此应对不一致，这就意味着需要用领袖上的条目来覆盖属下日志中有冲突的部分，日志覆盖是安全的，只须多加一条约束。</p>
+<p>为了让属下日志与自身保持一致，领袖需要找到双方最后一个匹配的条目，从该节点开始删除属下所有不一致的条目，并发送后续条目。这些操作根据<strong>AppendEntries</strong>返回的一致性检查结果视情况执行。领袖为每台属下维护一个 nextIndex变量，保存下一个发送给属下的日志编号。当领袖刚开始服务时，将nextIndex设置为自己日志中的下一个条目，如果属下日志与其不一致，下一次的<strong>AppendEntries</strong>一致性检查将失败。请求失败后领袖将降低nextIndex并重试请求，最终达到双方都匹配的节点。这时<strong>AppendEntries</strong>成功，请求将删除属下冲突的条目并从领袖日志追加新的条目，一旦成功，意味着属下与领袖的日志达到一致，任期内后续都会一致。</p>
+<p>在这种机制下，领袖开始服务后不需要任何特殊的操作保证一致性。只需要正常开始工作，经过<strong>AppendEntries</strong>失败后调整后将自动保持一致，领袖者不会覆盖自身及删除日志条目</p>
+<h2 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h2><p>然后当前还不能保证每台状态机刚好执行相同的命令序列。例如一台属下可能在领袖提交新日志条目时故障，恢复后被选举为新的领袖，覆盖了旧领袖追加的条目。造成不同状态机执行了不同的命令序列。</p>
+<h3 id="选举约束"><a href="#选举约束" class="headerlink" title="选举约束"></a>选举约束</h3><p>任何依赖领袖的一致性算法，领袖必须拥有所有已提交的日志条目。raft采用了简化的做法，<strong>选举保证新领袖必须包含先前任期所有已提交条目</strong>，无须传输缺失的条目，这就意味着条目只有一个流向，从领袖流向属下，领袖不会覆盖已存在的条目</p>
+<p>raft通过选举过程<strong>阻止候选人赢得选举</strong>，除非它拥有所有已提交的日志。候选人想赢得选举必须与集群内大多数机器通讯，这就意味着每个已提交条目必须出现在这些机器内至少有一台。只要候选人日志至少与其他大多数机器一样新，它便拥有所有已提交条目。<strong>RequestVote</strong> 实现了这个约束：该请求带有候选人日志信息，其他节点发现其落后于自己的日志，则拒绝投票</p>
+<p>raft以日志最后条目的索引以及任期判断日志更新。如果最后条目的任期不同，则任期靠后的更新，如果任期相同索引不同，索引越大越新</p>
+<h3 id="提交前任条目"><a href="#提交前任条目" class="headerlink" title="提交前任条目"></a>提交前任条目</h3><p>之前说过只要日志被复制到大部分的机器，领袖便提交该条目。如果领袖故障而导致还没来得及提交，后续的领袖将尝试复制该条目。然而领袖无法确定先前任期的条目是否提交，就算复制过半数，旧日志复制过半数也可能被新领袖覆盖</p>
+<p><img src="/images/consensus/fa933b96f1cb688befc825c3d82c167d.png" alt=""><br>如图，时刻a，s1是领袖，只完成了索引2条目的复制，时刻b，s1故障；s5被选为任期3的领袖（取得3，4的选票）并在索引2处接收一个新条目。时刻c，s5故障，s1重启被选为新的领袖，继续进行复制，这时，任期2的日志被复制到过半机器，但是没有提交。如果s1在时刻d挂掉，s5重新被选为领袖（s2-4的选票），将用自己任期3的条目进行覆盖。但是s1故障前将当前任期的日志条目复制过半机器，如时刻e，那么该条目就算完成提交（s5便无法赢得选举）。此时，所有前置日志条目也都完成提交。</p>
+<p>为了解决这个问题，raft选择<strong>不继续复制提交前任条目</strong>，只有领袖当前任期的日志条目才会持续复制提交；一旦当前任期条目完成提交，所有更早的日志也被提交（日志拼接性）。</p>
+<h3 id="安全性论证"><a href="#安全性论证" class="headerlink" title="安全性论证"></a>安全性论证</h3><p>可以使用反证法来证明：先假设领袖完整性不成立，由此退到处矛盾结论。假设任期T领袖在任期内提交了一个日志条目e，而后续任期领袖没有保存该条目，设领袖不包含条目e的最小任期是U（<code>U &gt; T</code>），则：</p>
+<ol>
+<li>任期U领袖选举时就已经缺少了条目e（领袖不删除或者覆盖自己的日志）</li>
+<li>任期T领袖将条目e复制过半数，而任期U领袖又收到过半投票数，因此至少有一台服务器即接收了条目e，又给任期U投票，这个也是不成立的<br><img src="/images/consensus/6b7f4bdd4ab11b6c9c348307778753f7.png" alt=""></li>
+<li>投票人必须在任期U领袖投票前，便已接受任期T领袖提交的日志条目。否则它将拒绝任期T领袖的<strong>AppendEntries</strong>，因为U的任期大</li>
+<li>根据假设，任期T到U之间的领袖均包含条目e，因此投票人在给任期U领袖投票时一定还包含条目e。因为领袖永远不会删除自己的日志，属下只有在条目于领袖有冲突才会删除</li>
+<li>投票人给任期U领袖投票，说明任期U领袖的日志至少和投票人一样新。进一步推理存在两种可能的场景，均是矛盾的。</li>
+<li>首先，如果投票人于任期U领袖的日志最后任期相同，那么领袖日志至少于投票一样长，这与假设矛盾，因为假设中投票人包含条目e而任期U不包含</li>
+<li>还有一种可能的情况：任期U的领袖日志最后任期只能比投票人大。由于投票人包含了任期T条目e，其日志最后任期至少是T，因为任期U领袖日志的最后任期比T大。根据假设，提交任期U领袖最后一个日志条目的领袖，必须包含条目e，根据日志拼接性，任期U内一定包含e</li>
+</ol>
+<h2 id="属下与候选人故障"><a href="#属下与候选人故障" class="headerlink" title="属下与候选人故障"></a>属下与候选人故障</h2><p>如果属下与候选人故障，那么<strong>AppendEntries</strong>请求失败，raft采用的机制是不断重试，重启后收到请求恢复正常。如果故障时正在处理请求，但是还没有返回，恢复后还会收到相同的RPC，由于raft RPC请求是幂等的，因此重试不会造成任何影响，例如属下发现条目已经在本地中，则会忽略。</p>
+<h2 id="时序与可用性"><a href="#时序与可用性" class="headerlink" title="时序与可用性"></a>时序与可用性</h2><p>raft还有一个条件：安全性不依赖时序：系统不能因为某些事件快于慢于预期便发生错误结果。然而 可用性（系统能够及时响应客户端请求）却不可避免的依赖时序。例如，如果消息交换耗时比两次机器故障间隔事件还长，候选人无法撑到选举胜出；没有一个稳定的领袖，raft便不能工作。</p>
+<p>只要以下时序条件成立，raft便可以选举并维持一个稳定的领袖：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">broadcastTime &lt;&lt; electionTimeout &lt;&lt; MTBF </span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>broadcastTime: 服务器往集群所有服务器发起一轮并行的RPC请求并收到响应的平均时间</li>
+<li>electionTime：选举超时时间</li>
+<li>MTBF：单台机器故障的平均时间间隔</li>
+</ul>
+<p>广播时间必须比选举时间小一个数量级，以便领袖可以靠发送心跳信息确保属下不发起新的选举；与选举随机超时时间配合，这个规则确保投票分裂不太会发生。选举超时时间必须比MTBF小于若干数量级，这样系统运行才稳定。</p>
+<h1 id="集群成员变更"><a href="#集群成员变更" class="headerlink" title="集群成员变更"></a>集群成员变更</h1><p>不过在实践过程中，集群可能会调整，例如替换故障机器或者调整副本数。</p>
+<p>安全配置的前提是：调整过程中不能出现两个领袖的情况。很不幸的是任何服务器直接从旧配置切换到新配置都是不安全的。由于所有服务器不可能同时切换，集群在调整过程中可能分化处两个互斥的过半数集合</p>
+<p><img src="/images/consensus/2f2d0eea6c824382b881ad77dcc38061.png" alt=""><br>直接从一份配置切换到另一份配置是不安全的，因为不同服务器可能在不同时间点切换</p>
+<p>为了确保安全性，配置分为两个阶段进行。实现两阶段机制有很多种方式可选。譬如有些系统在第一阶段禁用旧配置并停止更新客户端请求，然后第二阶段启用新配置。在raft种，集群先切换到一个 联合一致性的中间配置，结合旧配置和新配置</p>
+<ul>
+<li>日志条目同时复制到新旧配置的所有机器</li>
+<li>新旧机器配置种任一台均可能成为领袖</li>
+<li>决议（选举和日志提交）必须同时由新旧机器过半数产生</li>
+</ul>
+<blockquote>
+<p><a href="/files/raft.pdf">raft论文</a></p>
+</blockquote>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/20/develop/dubbo%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" rel="next" title="dubbo负载均衡">
+                <i class="fa fa-chevron-left"></i> dubbo负载均衡
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/30/develop/jvm%E8%B0%83%E4%BC%98%E5%B0%8F%E7%BB%93/" rel="prev" title="jvm调优小结">
+                jvm调优小结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">blue</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/%20%7C%7C%20archive">
+                
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E7%8A%B6%E6%80%81%E6%9C%BA"><span class="nav-number">2.</span> <span class="nav-text">复制状态机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#raft%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">raft一致性算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#raft%E8%A6%81%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">raft要点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AppendEntries-RPC"><span class="nav-number">3.2.</span> <span class="nav-text">AppendEntries RPC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RequestVote-RPC"><span class="nav-number">3.3.</span> <span class="nav-text">RequestVote RPC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%A7%84%E5%88%99"><span class="nav-number">3.4.</span> <span class="nav-text">服务器规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E6%80%A7%E8%B4%A8"><span class="nav-number">3.5.</span> <span class="nav-text">关键性质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%86%E8%A2%96%E9%80%89%E4%B8%BE"><span class="nav-number">3.6.</span> <span class="nav-text">领袖选举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E5%A4%8D%E5%88%B6"><span class="nav-number">3.7.</span> <span class="nav-text">日志复制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%80%A7"><span class="nav-number">3.8.</span> <span class="nav-text">安全性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%89%E4%B8%BE%E7%BA%A6%E6%9D%9F"><span class="nav-number">3.8.1.</span> <span class="nav-text">选举约束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E4%BA%A4%E5%89%8D%E4%BB%BB%E6%9D%A1%E7%9B%AE"><span class="nav-number">3.8.2.</span> <span class="nav-text">提交前任条目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%80%A7%E8%AE%BA%E8%AF%81"><span class="nav-number">3.8.3.</span> <span class="nav-text">安全性论证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%9E%E4%B8%8B%E4%B8%8E%E5%80%99%E9%80%89%E4%BA%BA%E6%95%85%E9%9A%9C"><span class="nav-number">3.9.</span> <span class="nav-text">属下与候选人故障</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F%E4%B8%8E%E5%8F%AF%E7%94%A8%E6%80%A7"><span class="nav-number">3.10.</span> <span class="nav-text">时序与可用性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E6%88%90%E5%91%98%E5%8F%98%E6%9B%B4"><span class="nav-number">4.</span> <span class="nav-text">集群成员变更</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">blue</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+ <div class="powered-by">ICP证：<a class="theme-link" target="_blank" href="http://www.beian.miit.gov.cn">浙ICP备17007762号</a></div>
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/baidustatic.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

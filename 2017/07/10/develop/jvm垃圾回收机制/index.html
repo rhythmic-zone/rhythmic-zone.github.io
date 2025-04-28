@@ -1,35 +1,1311 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ title }}{% endblock %}
-
-{% block page_class %}page-post-detail{% endblock %}
 
 
-{% block content %}
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="垃圾收集器（GC）是一种内存管理工具。它通过以下操作实现自动内存管理：  将对象分配给年轻一代，并将老化的对象提升为老一代。 通过并行标记阶段查找旧一代中的活动对象。当Java堆总占用量超过默认阈值时，Java HotSpot VM会触发标记阶段。 通过并行复制压缩活动对象来恢复可用内存。请参阅并行收集器和垃圾优先的垃圾收集器部分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="标准版HotSpot虚拟机垃圾收集优化">
+<meta property="og:url" content="https://rhythmic-zone.github.io/2017/07/10/develop/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="rhythmic-zone">
+<meta property="og:description" content="垃圾收集器（GC）是一种内存管理工具。它通过以下操作实现自动内存管理：  将对象分配给年轻一代，并将老化的对象提升为老一代。 通过并行标记阶段查找旧一代中的活动对象。当Java堆总占用量超过默认阈值时，Java HotSpot VM会触发标记阶段。 通过并行复制压缩活动对象来恢复可用内存。请参阅并行收集器和垃圾优先的垃圾收集器部分">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/jsgct_dt_005_gph_pc_vs_tp.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/jsgct_dt_003_alc_vs_srvng.png">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/jsgct_dt_006_prm_gn_sz.png">
+<meta property="article:published_time" content="2017-07-10T07:18:00.000Z">
+<meta property="article:modified_time" content="2021-03-19T02:52:33.133Z">
+<meta property="article:author" content="blue">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rhythmic-zone.github.io/images/jsgct_dt_005_gph_pc_vs_tp.png">
+
+
+
+
+
+
+  <link rel="canonical" href="https://rhythmic-zone.github.io/2017/07/10/develop/jvm垃圾回收机制/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>标准版HotSpot虚拟机垃圾收集优化 | rhythmic-zone</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">rhythmic-zone</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rhythmic-zone.github.io/2017/07/10/develop/jvm%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="blue">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rhythmic-zone">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">标准版HotSpot虚拟机垃圾收集优化
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-07-10 15:18:00" itemprop="dateCreated datePublished" datetime="2017-07-10T15:18:00+08:00">2017-07-10</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/jvm/" itemprop="url" rel="index"><span itemprop="name">jvm</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/jvm/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>垃圾收集器（GC）是一种内存管理工具。它通过以下操作实现自动内存管理：</p>
+<ul>
+<li>将对象分配给年轻一代，并将老化的对象提升为老一代。</li>
+<li>通过并行标记阶段查找旧一代中的活动对象。当Java堆总占用量超过默认阈值时，Java HotSpot VM会触发标记阶段。</li>
+<li>通过并行复制压缩活动对象来恢复可用内存。请参阅并行收集器和垃圾优先的垃圾收集器部分</li>
+</ul>
+<span id="more"></span>
+<p>什么时候选择垃圾收集器很重要？对于某些应用程序，答案永远是不可能的。也就是说，在存在垃圾收集的情况下，应用程序可以在频率和持续时间适度的暂停下表现良好。但是，对于大类应用程序却不是这种情况，尤其是那些具有大量数据（多个千兆字节），许多线程和高事务处理率的应用程序。</p>
+<p>阿姆达尔定律（给定问题中的并行加速受问题的顺序部分限制）意味着大多数工作负载无法完美并行化；某些部分始终是顺序的，不能从并行性中受益。Java平台也是如此。特别是，Java SE 1.4之前的Oracle针对Java平台的虚拟机不支持并行垃圾收集，因此，垃圾收集对多处理器系统的影响相对于其他并行应用程序而言会增加。</p>
+<p>下图“比较垃圾收集中所用时间的百分比”中的图形对理想的系统进行了建模，该系统除了垃圾收集（GC）之外，还具有很好的可伸缩性。红线表示应用程序仅在单处理器系统上花费1％的时间进行垃圾回收。在具有32个处理器的系统上，这意味着吞吐量损失超过20％。洋红色线显示，对于一个应用程序来说，垃圾回收有10％的时间（在单处理器应用程序中垃圾回收的时间不算太长），当扩展到32个处理器时，将损失超过75％的吞吐量。<br><img src="/images/jsgct_dt_005_gph_pc_vs_tp.png" alt=""></p>
+<p>这表明，在小型系统上进行开发时，可以忽略的速度问题可能会在扩展到大型系统时成为主要瓶颈。但是，在减少这种瓶颈方面进行小的改进可以提高性能。对于足够大的系统，有必要选择合适的垃圾收集器并在必要时进行调整。</p>
+<p>串行收集器通常适合大多数“小型”应用程序（那些需要高达大约100兆字节（在现代处理器上为MB）的堆。其他收集器具有额外的开销或复杂性，这是特殊行为的代价。不需要备用收集器的特殊行为，请使用串行收集器。一种不希望串行收集器成为最佳选择的情况是大型，线程密集的应用程序，该应用程序在具有大量内存和两个内存的计算机上运行在此类服务器级计算机上运行应用程序时，默认情况下会选择并行收集器</p>
+<h1 id="人体工程学"><a href="#人体工程学" class="headerlink" title="人体工程学"></a>人体工程学</h1><p>人机工程学是Java虚拟机（JVM）和垃圾收集调优（例如基于行为的调优）提高应用程序性能的过程。JVM为垃圾收集器，堆大小和运行时编译器提供了依赖于平台的默认选择。这些选择符合不同类型应用程序的需求，同时需要较少的命令行调整。此外，基于行为的调整会动态调整堆的大小，以满足应用程序的指定行为。</p>
+<p>垃圾收集器，堆和运行时编译器的默认选择</p>
+<p>称为服务器类机器的一类机器已定义为具有以下内容的机器：</p>
+<ul>
+<li>2个或更多物理处理器</li>
+<li>2 GB或更多的物理内存</li>
+</ul>
+<p>在服务器级计算机上，默认情况下选择以下内容：</p>
+<ul>
+<li>最大堆大小为物理内存的1/4，最大为1 GB</li>
+<li>吞吐量垃圾收集器</li>
+<li>初始堆大小为1/64的物理内存，最大为1 GB</li>
+<li>服务器运行时编译器</li>
+</ul>
+<h2 id="基于行为的调整"><a href="#基于行为的调整" class="headerlink" title="基于行为的调整"></a>基于行为的调整</h2><p>对于并行收集器，Java SE提供了两个垃圾收集调整参数，这些参数基于实现应用程序的指定行为：最大暂停时间目标和应用程序吞吐量目标。（这两个选项在其他收集器中不可用。）请注意，这些行为不能始终得到满足。该应用程序需要足够大的堆，以至少容纳所有实时数据。此外，最小堆大小可能会阻止达到这些期望的目标。</p>
+<h2 id="最大暂停时间目标"><a href="#最大暂停时间目标" class="headerlink" title="最大暂停时间目标"></a>最大暂停时间目标</h2><p>暂停时间是垃圾收集器停止应用程序并恢复不再使用的空间的持续时间。最大暂停时间目标的目的是限制这些暂停中的最长时间。垃圾回收器会保持平均的停顿时间和该平均值的方差。平均值是从执行开始时获取的，但经过加权后，最近的暂停次数会增加。如果平均时间加上暂停时间的方差大于最大暂停时间目标，则垃圾回收器认为未达到目标。</p>
+<p>最大暂停时间目标是通过命令行选项指定的-XX:MaxGCPauseMillis=<nnn>。这被解释为垃圾收集器的提示，要求暂停时间为<nnn>毫秒或更短。垃圾收集器将调整Java堆大小以及与垃圾收集相关的其他参数，以使垃圾收集暂停时间短于<nnn>毫秒。默认情况下，没有最大暂停时间目标。这些调整可能导致垃圾回收器更频繁地发生，从而降低了应用程序的整体吞吐量。垃圾收集器会尝试在吞吐量目标之前达到任何暂停时间目标。但是，在某些情况下，无法达到所需的暂停时间目标。</p>
+<h2 id="吞吐量目标"><a href="#吞吐量目标" class="headerlink" title="吞吐量目标"></a>吞吐量目标</h2><p>吞吐量目标是根据收集垃圾所花费的时间和垃圾收集之外所花费的时间（称为应用时间）来衡量的。目标由命令行选项指定-XX:GCTimeRatio=<nnn>。垃圾收集时间与应用程序时间的比率为1 /（1 + <nnn>）。例如，-XX:GCTimeRatio=19将垃圾收集目标设置为目标1/20或总时间的5％。</p>
+<p>垃圾收集所花费的时间是年轻一代和老一代收集的总时间。如果没有达到吞吐量目标，那么将增加世代的大小，以增加应用程序在集合之间运行的时间。</p>
+<h2 id="足迹目标"><a href="#足迹目标" class="headerlink" title="足迹目标"></a>足迹目标</h2><p>如果已满足吞吐量和最大暂停时间目标，则垃圾收集器将减小堆的大小，直到无法满足其中一个目标（始终是吞吐量目标）。然后解决未实现的目标。</p>
+<h2 id="调整策略"><a href="#调整策略" class="headerlink" title="调整策略"></a>调整策略</h2><p>除非您知道需要的堆大于默认的最大堆大小，否则不要为堆选择最大值。选择适合您的应用程序的吞吐量目标。</p>
+<p>堆将增长或缩小到可以支持所选吞吐量目标的大小。应用程序行为的更改可能导致堆增大或缩小。例如，如果应用程序开始以更高的速率分配，堆将增长以保持相同的吞吐量。</p>
+<p>如果堆增长到最大大小，并且无法满足吞吐量目标，则最大堆大小对于吞吐量目标而言太小。将最大堆大小设置为接近平台上总物理内存但不会导致应用程序交换的值。再次执行该应用程序。如果仍然不能满足吞吐量目标，则对于平台上的可用内存，应用程序时间目标太高。</p>
+<p>如果可以达到吞吐量目标，但暂停时间太长，则选择最大暂停时间目标。选择最大暂停时间目标可能意味着您的吞吐量目标将无法实现，因此请选择对应用程序可接受的折衷值。</p>
+<p>通常，随着垃圾收集器试图满足竞争目标，堆的大小会振荡。即使应用程序已达到稳定状态，也是如此。实现吞吐量目标（可能需要更大的堆）的压力与目标竞争，以获得最大的暂停时间和最小的占用空间（这两者都可能需要小的堆）。</p>
+<h1 id="分代"><a href="#分代" class="headerlink" title="分代"></a>分代</h1><p>Java SE平台的优势之一在于，它使开发人员免受内存分配和垃圾回收的复杂性的困扰。但是，当垃圾收集是主要瓶颈时，了解此隐藏实现的某些方面很有用。垃圾收集器对应用程序使用对象的方式进行了假设，并且这些反映在可调整的参数中，可以调整这些参数以提高性能而不会牺牲抽象的力量。</p>
+<p>如果无法从正在运行的程序中的任何指针访问对象，则该对象被视为垃圾。最简单的垃圾回收算法会遍历每个可访问的对象。剩下的任何对象都被视为垃圾。这种方法所花费的时间与活动对象的数量成正比，这对于维护大量活动数据的大型应用程序是不允许的。</p>
+<p>虚拟机结合了许多不同的垃圾收集算法，这些算法使用分代收集进行组合。当幼稚的垃圾收集检查堆中的每个活动对象时，分代收集利用大多数应用程序的经验观察到的属性，以最大程度地减少回收未使用的（垃圾）对象所需的工作。这些观察到的特性中最重要的是弱代假设，该假设指出大多数物体只能存活很短的时间。</p>
+<p>下图“对象生命周期的典型分布”中的蓝色区域是对象生命周期的典型分布。x轴是对象寿命，以分配的字节为单位。y轴上的字节数是具有相应生存期的对象中的总字节数。左侧的尖峰表示分配后不久即可回收的对象（换句话说，已“死亡”）。例如，迭代器对象通常在单个循环期间仍处于活动状态。<br><img src="/images/jsgct_dt_003_alc_vs_srvng.png" alt=""></p>
+<p>有些对象的寿命更长，因此分布向右延伸。例如，通常有一些在初始化时分配的对象，这些对象一直存在，直到进程退出。在这两个极端之间的是在某些中间计算过程中存在的对象，在这里将其视为初始峰右边的肿块。一些应用程序的外观分布非常不同，但是令人惊讶的是，大量应用程序具有这种总体形状。通过关注大多数对象“早逝”这一事实，可以进行有效的收集。</p>
+<p>为了针对这种情况进行优化，内存要分代管理（存储着不同年龄对象的内存池）。当世代填满时，垃圾回收会在每个世代中发生。绝大多数对象分配在专用于年轻对象（年轻一代）的池中，并且大多数对象在那里死亡。当年轻一代填满时，会导致次要收藏只收集年轻一代；不回收其他世代的垃圾。假设弱的世代假设成立并且年轻一代中的大多数对象都是垃圾并且可以回收，可以优化次要集合。首先，这种收集的费用与所收集的有生命物体的数量成正比；可以很快收集到充满死亡物体的年轻一代。通常，在每个次要收藏期间，来自年轻世代的尚存对象的一部分会移交给终身代。最终，保有权的一代将填满并且必须被收集，从而导致大量的收集，其中收集了整个堆。主要集合的持续时间通常比次要集合的持续时间长得多，因为涉及的对象数量大得多。</p>
+<p>如“ 人体工程学”部分所述，人体工程学动态选择垃圾收集器，以在各种应用程序上提供良好的性能。串行垃圾收集器是为具有小型数据集的应用程序设计的，其默认参数被选择为对大多数小型应用程序有效。并行或吞吐量垃圾收集器旨在与具有中大型数据集的应用程序一起使用。人体工程学选择的堆大小参数以及自适应大小策略的功能旨在为服务器应用程序提供良好的性能</p>
+<h2 id="性能考量"><a href="#性能考量" class="headerlink" title="性能考量"></a>性能考量</h2><p>有两种主要的垃圾收集性能度量：</p>
+<ul>
+<li>吞吐量是长时间内未用于垃圾回收的总时间的百分比。吞吐量包括分配所花费的时间（但是通常不需要调整分配速度）。</li>
+<li>暂停是指由于正在进行垃圾回收而导致应用程序无响应的时间。</li>
+</ul>
+<p>用户对垃圾回收有不同的要求。例如，有些人认为Web服务器的正确度量标准是吞吐量，因为垃圾收集期间的暂停可能是可以容忍的，或者可能被网络延迟所掩盖。但是，在交互式图形程序中，即使短暂的暂停也会对用户体验产生负面影响。</p>
+<p>一些用户对其他注意事项敏感。足迹是流程的工作集，以页和缓存行为单位。在具有有限物理内存或许多进程的系统上，占用空间可能决定可伸缩性。及时性是当一个物体变得死亡之间的时间当内存可用，分布式系统，包括远程方法调用（RMI）的重要考虑因素。</p>
+<p>通常，为特定世代选择大小是这些考虑之间的权衡。例如，一个非常大的年轻一代可以最大化吞吐量，但是这样做会以占用空间，及时性和暂停时间为代价。可以通过使用少量的年轻一代来最小化年轻一代的停顿，但会降低吞吐量。一代的大小不会影响另一一代的收集频率和暂停时间。</p>
+<p>没有选择世代大小的正确方法。最佳选择取决于应用程序使用内存的方式以及用户需求。因此，虚拟机对垃圾收集器的选择并非总是最佳选择，并且可以被“ 调整世代大小” 部分中介绍的命令行选项所覆盖。</p>
+<h2 id="测量"><a href="#测量" class="headerlink" title="测量"></a>测量</h2><p>吞吐量和占用空间最好使用特定于应用程序的指标来衡量。例如，可以使用客户端负载生成器来测试Web服务器的吞吐量，而可以使用以下pmap命令在Solaris操作系统上测量服务器的占用空间。但是，通过检查虚拟机本身的诊断输出，很容易估计由于垃圾收集而引起的暂停。</p>
+<p>命令行选项-verbose:gc使有关堆和垃圾收集的信息在每个收集处打印。例如，以下是大型服务器应用程序的输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[GC 325407K-&gt;83000K(776768K), 0.2300771 secs]</span><br><span class="line">[GC 325816K-&gt;83372K(776768K), 0.2454258 secs]</span><br><span class="line">[Full GC 267628K-&gt;83769K(776768K), 1.8479984 secs]</span><br></pre></td></tr></table></figure>
+<p>输出显示两个次要集合，然后是一个主要集合。箭头之前和之后的数字（例如，325407K-&gt;83000K从第一行开始）分别指示垃圾回收之前和之后的活动对象的组合大小。在进行次要收集之后，该大小包括一些垃圾（不再存在）但无法回收的对象。这些对象包含在使用期限的代中或从使用期限的代中引用。</p>
+<p>括号中的下一个数字（例如，(776768K)从第一行起）是堆的已提交大小：Java对象可用的空间量，而无需从操作系统请求更多的内存。请注意，此数字仅包括幸存者空间之一。除了在垃圾回收期间，在任何给定时间仅将使用一个幸存空间来存储对象。</p>
+<p>该行的最后一项（例如0.2300771 secs）指示执行收集所需的时间，在这种情况下约为四分之一秒。</p>
+<p>第三行中主要收藏的格式相似。</p>
+<p>命令行选项将-XX:+PrintGCDetails导致有关集合的其他信息被打印。-XX:+PrintGCDetails此处显示了使用串行垃圾收集器的输出示例。</p>
+<p>[GC [DefNew: 64575K-&gt;959K(64576K), 0.0457646 secs] 196016K-&gt;133633K(261184K), 0.0459067 secs]<br>这表明未成年人的收集恢复了约98％的年轻一代，DefNew: 64575K-&gt;959K(64576K)并花了0.0457646 secs大约45毫秒的时间。</p>
+<p>整个堆的使用减少到了约51％（196016K-&gt;133633K(261184K)），并且收集的最后开销为，稍微增加了一些额外的开销（年轻一代的收集之外）0.0459067 secs。</p>
+<p>该选项-XX:+PrintGCTimeStamps在每个收集开始时添加一个时间戳。这对于查看垃圾收集发生的频率很有用。</p>
+<p>111.042: [GC 111.042: [DefNew: 8128K-&gt;8128K(8128K), 0.0000505 secs]111.042: [Tenured: 18154K-&gt;2311K(24576K), 0.1290354 secs] 26282K-&gt;2311K(32704K), 0.1293306 secs]<br>收集开始到应用程序执行大约111秒。次要收集大约在同一时间开始。此外，还显示了Tenured所描绘的主要收藏的信息。长期使用的使用率降低到约10％（18154K-&gt;2311K(24576K)），并花费了0.1290354 secs大约130毫秒的时间。</p>
+<h1 id="调整分代大小"><a href="#调整分代大小" class="headerlink" title="调整分代大小"></a>调整分代大小</h1><p>许多参数会影响世代大小。“堆参数”说明了堆中已提交空间和虚拟空间之间的差异。在虚拟机初始化时，将保留堆的整个空间。可用-Xmx选项指定保留空间的大小。如果-Xms参数的值小于参数的值，则-Xmx并非所有保留的空间都会立即提交给虚拟机。在此图中，未使用的空间标记为“虚拟”。堆的不同部分（使用权的一代和年轻一代）可以根据需要增长到虚拟空间的极限。</p>
+<p>一些参数是堆的一部分与另一部分的比率。例如，该参数NewRatio表示保有权代与年轻代的相对大小。<br><img src="/images/jsgct_dt_006_prm_gn_sz.png" alt=""></p>
+<p>以下是有关服务器应用程序堆大小的一般准则：</p>
+<ul>
+<li>除非您在暂停方面遇到问题，否则请尝试为虚拟机分配尽可能多的内存。默认大小通常太小。</li>
+<li>通过从虚拟机中删除最重要的大小决策，将-Xms和设置-Xmx为相同的值可以提高可预测性。但是，如果选择不当，虚拟机将无法补偿。</li>
+<li>通常，由于分配可以并行化，因此随着处理器数量的增加而增加内存。</li>
+</ul>
+<h2 id="年轻代"><a href="#年轻代" class="headerlink" title="年轻代"></a>年轻代</h2><p>在总可用内存之后，影响垃圾收集性能的第二大影响因素是专用于年轻一代的堆的比例。年轻一代越大，收藏的次数就越少。但是，对于有限的堆大小，较大的年轻代意味着较小的终身代，这将增加主要集合的频率。最佳选择取决于应用程序分配的对象的生命周期分布。</p>
+<p>默认情况下，年轻代大小由参数控制NewRatio。例如，设置-XX:NewRatio=3意味着年轻一代和终身一代之间的比率为1：3。换句话说，伊甸园空间和幸存者空间的总大小将是堆总大小的四分之一。</p>
+<p>这些参数NewSize和MaxNewSize边界从下到上的年轻代大小。这些设置为相同的值修正的年轻一代，就像设置-Xms和-Xmx相同的值修正总堆大小。这对于以比允许的整数倍更好的粒度调整年轻一代很有用NewRatio。</p>
+<h2 id="幸存者空间大小"><a href="#幸存者空间大小" class="headerlink" title="幸存者空间大小"></a>幸存者空间大小</h2><p>您可以使用参数SurvivorRatio来调整幸存空间的大小，但这对于性能通常并不重要。例如，-XX:SurvivorRatio=6将伊甸园和幸存者空间之间的比例设置为1：6。换句话说，每个幸存者空间将是伊甸园大小的六分之一，因此是年轻一代的八分之一（而不是七分之一，因为有两个幸存者空间）。</p>
+<p>如果幸存者空间太小，则复制集合会直接溢出到终身代。如果幸存者空间太大，它们将毫无用处。在每次垃圾回收时，虚拟机都会选择一个阈值数，该阈值数是对象在使用权之前可以复制的次数。选择该阈值可使幸存者半满。命令行选项-XX:+PrintTenuringDistribution（并非在所有垃圾收集器上都可用）可用于显示此阈值和新一代对象的寿命。这对于观察应用程序的生命周期分布也很有用。</p>
+<p>年轻代的最大大小将根据总堆的最大大小和NewRatio参数值来计算。参数的“不受限制”默认值MaxNewSize表示，MaxNewSize除非MaxNewSize在命令行上指定的值，否则计算值不受限制。</p>
+<p>以下是服务器应用程序的一般准则：</p>
+<ul>
+<li>首先确定您可以负担得起的虚拟机的最大堆大小。然后针对年轻一代绘制性能指标，以找到最佳设置。<blockquote>
+<blockquote>
+<p>请注意，最大堆大小应始终小于计算机上安装的内存量，以避免过多的页面错误和崩溃。</p>
+</blockquote>
+</blockquote>
+</li>
+<li>如果总堆大小是固定的，则增加年轻代的大小需要减少保有代的大小。使使用期限的一代足够大，以容纳应用程序在任何给定时间使用的所有实时数据，以及一定数量的闲置空间（10％到20％或更多）。</li>
+<li><p>遵循先前对终身代的约束：</p>
+<ul>
+<li>给年轻代留下很多内存。</li>
+<li>随着处理器数量的增加，可以增加年轻代的大小，因为分配可以并行化</li>
+</ul>
+<h1 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h1></li>
+</ul>
+<p>串行收集器使用单个线程来执行所有垃圾收集工作，这使之相对高效，因为线程之间没有通信开销。它最适合单处理器计算机，因为它不能利用多处理器硬件，尽管它在多处理器上对于数据集较小（大约100 MB）的应用很有用。默认情况下，在某些硬件和操作系统配置上选择了串行收集器，或者可以使用选项显式启用串行收集器-XX:+UseSerialGC。</p>
+<p>并行收集器（也称为吞吐量收集器）并行执行次要收集，这可以大大减少垃圾收集的开销。它适用于具有在多处理器或多线程硬件上运行的中型到大型数据集的应用程序。默认情况下，在某些硬件和操作系统配置上选择了并行收集器，或者可以使用选项显式启用并行收集器-XX:+UseParallelGC。</p>
+<p>并行压缩是使并行收集器能够并行执行主要收集的功能。如果没有并行压缩，则使用单个线程执行主要集合，这会大大限制可伸缩性。如果-XX:+UseParallelGC指定了该选项，则默认情况下启用并行压缩。将其关闭的选项是-XX:-UseParallelOldGC。</p>
+<p>大多数并发的收集器会同时执行其大部分工作（例如，在应用程序仍在运行时），以使垃圾收集暂停时间较短。它设计用于具有中型到大型数据集的应用程序，在这些应用程序中，响应时间比整体吞吐量更重要，因为用于最小化暂停的技术会降低应用程序性能。Java HotSpot VM提供了两个主要是并发收集器之间的选择。使用该选项-XX:+UseConcMarkSweepGC启用CMS收集器或-XX:+UseG1GC启用G1收集器。</p>
+<h2 id="选择收集器"><a href="#选择收集器" class="headerlink" title="选择收集器"></a>选择收集器</h2><p>除非您的应用程序有非常严格的暂停时间要求，否则请先运行您的应用程序并允许VM选择收集器。如有必要，请调整堆大小以提高性能。如果性能仍然不能达到您的目标，请使用以下准则作为选择收集器的起点。</p>
+<ul>
+<li>如果应用程序的数据集较小（最大约100 MB），则使用选项选择串行收集器-XX:+UseSerialGC。</li>
+<li>如果应用程序将在单个处理器上运行，并且没有暂停时间要求，则让VM选择收集器，或使用选项选择串行收集器-XX:+UseSerialGC。</li>
+<li>如果吞吐量是第一要务，并且没有暂停时间要求或可接受的暂停时间为1秒或更长时间，则让VM选择收集器，或使用选择并行收集器-XX:+UseParallelGC。</li>
+</ul>
+<p>如果响应时间比整体吞吐量更重要，并且垃圾收集暂停时间必须保持小于1秒，那么请使用-XX:+UseConcMarkSweepGC或选择并发收集器-XX:+UseG1GC。</p>
+<p>这些准则仅提供选择收集器的起点，因为性能取决于堆的大小，应用程序维护的实时数据量以及可用处理器的数量和速度。暂停时间对这些因素特别敏感，因此前面提到的1秒阈值仅是近似值：在许多数据大小和硬件组合上，并行收集器的暂停时间将超过1秒。相反，在某些组合上，并发收集器可能无法将暂停时间保持在1秒以内。</p>
+<p>如果推荐的收集器未达到所需的性能，请首先尝试调整堆和世代大小以满足所需的目标。如果性能仍然不足，请尝试使用其他收集器：使用并发收集器减少暂停时间，并使用并行收集器增加多处理器硬件上的总体吞吐量。</p>
+<h1 id="并行收集器"><a href="#并行收集器" class="headerlink" title="并行收集器"></a>并行收集器</h1><p>并行收集器（在此也称为吞吐量收集器）是类似于串行收集器的分代收集器。主要区别在于使用多个线程来加速垃圾回收。并行收集器通过命令行选项启用-XX:+UseParallelGC。默认情况下，使用此选项，次要和主要收集都将并行执行，以进一步减少垃圾收集的开销。</p>
+<p>上与机器Ñ硬件线程其中Ñ大于8，并行收集器使用的一个固定分数Ñ作为垃圾收集线程的数量。对于较大的N值，该分数约为5/8 。当N的值小于8时，使用的数字为N。在选定的平台上，该分数下降到5/16。垃圾回收器线程的特定数量可以使用命令行选项进行调整（稍后说明）。在具有一个处理器的主机上，由于并行执行（例如，同步）所需的开销，并行收集器的性能可能不如串行收集器。但是，当运行具有中型到大型堆的应用程序时，在具有两个处理器的机器上，它通常比串行收集器的性能要适度，并且在可用两个以上处理器的情况下，其性能通常明显好于串行收集器。</p>
+<p>垃圾收集器线程的数量可以通过命令行选项控制 -XX:ParallelGCThreads=<N>。如果使用命令行选项对堆进行显式调整，则并行收集器要获得良好性能所需的堆大小与串行收集器所需的堆大小相同。但是，启用并行收集器应缩短收集暂停时间。因为多个垃圾收集器线程正在参与次要收集，所以由于收集期间从年轻一代到终身代的晋升，可能会产生一些碎片。次要收集中涉及的每个垃圾收集线程都保留使用权的一代中的一部分进行提升，并且将可用空间划分为这些“提升缓冲区”会导致碎片效应。</p>
+<p>默认情况下，在服务器级计算机上选择并行收集器。此外，并行收集器使用一种自动调整的方法，该方法允许您指定特定的行为，而不是生成大小和其他低级调整详细信息。您可以指定最大的垃圾收集暂停时间，吞吐量和占用空间（堆大小）。</p>
+<p>最大垃圾回收暂停时间：最大暂停时间目标是通过命令行选项指定的-XX:MaxGCPauseMillis=<N>。这被解释为需要<N>毫秒或更少的暂停时间的提示。默认情况下，没有最大暂停时间目标。如果指定了暂停时间目标，则会调整堆大小和与垃圾回收相关的其他参数，以使垃圾回收的暂停时间短于指定值。这些调整可能导致垃圾收集器降低应用程序的整体吞吐量，并且无法始终满足所需的暂停时间目标。</p>
+<p>吞吐量：吞吐量目标是根据进行垃圾收集所花费的时间与在垃圾收集之外所花费的时间（称为应用程序时间）来衡量的。该目标由命令行选项指定，该选项-XX:GCTimeRatio=<N>将垃圾回收时间与应用程序时间之比设置为1 / (1 + <N>)。</p>
+<p>例如，-XX:GCTimeRatio=19将垃圾收集的目标设置为总时间的1/20或5％。默认值为99，导致垃圾回收的目标时间为1％。</p>
+<p>足迹：最大堆足迹使用选项指定-Xmx<N>。另外，收集器还有一个隐含的目标，即只要满足其他目标，就将堆的大小最小化。</p>
+<p>目标优先<br>按照以下顺序解决目标：</p>
+<ul>
+<li>最大暂停时间目标</li>
+<li>吞吐量目标</li>
+<li>最小足迹目标</li>
+</ul>
+<p>首先达到最大暂停时间目标。只有在达到目标之后，才能实现吞吐量目标。同样，只有在达到前两个目标后，才会考虑足迹目标。</p>
+<h2 id="世代大小调整"><a href="#世代大小调整" class="headerlink" title="世代大小调整"></a>世代大小调整</h2><p>收集器保留的统计信息（例如平均暂停时间）将在每个收集结束时更新。然后进行确定目标是否达到的测试，并对世代大小进行任何必要的调整。唯一的例外是，System.gc()在保留统计信息和调整世代大小方面，会忽略显式垃圾回收（例如对的调用）。</p>
+<p>增长和缩小世代的大小是通过增加作为世代大小的固定百分比来完成的，以便使世代朝其期望的大小递增或递减。生长和收缩以不同的速率进行。默认情况下，世代以20％的增量增长，而以5％的增量萎缩。成长百分比由-XX:YoungGenerationSizeIncrement=<Y>年轻一代和-XX:TenuredGenerationSizeIncrement=<T>终身代的命令行选项控制。世代缩小的百分比由命令行标志调整-XX:AdaptiveSizeDecrementScaleFactor=<D>。如果增长增量为X百分比，则收缩的减少量为X / D百分比。</p>
+<p>如果收集器决定在启动时增加一代，则将增加一个补充百分比。这种补充随着收集的数量而衰减，并且没有长期影响。补充的目的是提高启动性能。缩小百分比没有补充。</p>
+<p>如果没有达到最大暂停时间目标，则一次仅缩小一代的大小。如果两个世代的暂停时间都超过了目标，则首先缩减具有较大暂停时间的世代的大小。</p>
+<p>如果未达到吞吐量目标，则两代产品的尺寸都会增加。每一个都按其对总垃圾收集时间的贡献成比例地增加。例如，如果年轻一代的垃圾收集时间为总收集时间的25％，并且如果年轻一代的全部增量将增加20％，则年轻一代将增加5％。</p>
+<h2 id="默认堆大小"><a href="#默认堆大小" class="headerlink" title="默认堆大小"></a>默认堆大小</h2><p>除非在命令行上指定了初始堆大小和最大堆大小，否则它们将根据计算机上的内存量进行计算。</p>
+<h2 id="客户端JVM默认的初始和最大堆大小"><a href="#客户端JVM默认的初始和最大堆大小" class="headerlink" title="客户端JVM默认的初始和最大堆大小"></a>客户端JVM默认的初始和最大堆大小</h2><p>默认最大堆大小是物理内存的一半，最大物理内存大小为192兆字节（MB），否则，四分之一的物理内存，最大物理内存大小为1 GB。</p>
+<p>例如，如果您的计算机具有128 MB的物理内存，则最大堆大小为64 MB，并且大于或等于1 GB的物理内存将导致最大堆大小为256 MB。</p>
+<p>除非您的程序创建了足够多的对象来要求它，否则JVM实际上并没有使用最大堆大小。在JVM初始化期间分配了一个较小的值，称为初始堆大小。该数量至少为8 MB，否则为物理内存的1/64，最大为1 GB。</p>
+<p>分配给年轻代的最大空间量是总堆大小的三分之一。</p>
+<h2 id="服务器JVM默认的初始和最大堆大小"><a href="#服务器JVM默认的初始和最大堆大小" class="headerlink" title="服务器JVM默认的初始和最大堆大小"></a>服务器JVM默认的初始和最大堆大小</h2><p>默认的初始堆大小和最大堆大小在服务器JVM上的工作方式与在客户端JVM上的工作方式类似，不同之处在于，默认值可以更高。在32位JVM上，如果有4 GB或更多的物理内存，则默认的最大堆大小最多可以为1 GB。在64位JVM上，如果有128 GB或更多的物理内存，则默认的最大堆大小最大为32 GB。您始终可以通过直接指定这些值来设置更高或更低的初始堆和最大堆；请参阅下一节。</p>
+<h2 id="指定初始和最大堆大小"><a href="#指定初始和最大堆大小" class="headerlink" title="指定初始和最大堆大小"></a>指定初始和最大堆大小</h2><p>您可以使用标志-Xms（初始堆大小）和-Xmx（最大堆大小）来指定初始堆大小和最大堆大小。如果你知道你的应用程序有多少堆需要工作做好，你可以设置-Xms和-Xmx相同的值。否则，JVM将使用初始堆大小开始，然后将增大Java堆，直到找到堆使用和性能之间的平衡为止。</p>
+<p>其他参数和选项可能会影响这些默认值。要验证您的默认值，请使用该-XX:+PrintFlagsFinal选项并MaxHeapSize在输出中查找。例如，在Linux或Solaris上，可以运行以下命令：</p>
+<p>java -XX：+ PrintFlagsFinal &lt;GC选项&gt;-版本 | grep MaxHeapSize<br>过多的GC时间和OutOfMemoryError<br>并行收集器会OutOfMemoryError在垃圾回收（GC）上花费过多的时间：如果在垃圾回收中花费了总时间的98％以上，而回收不到2％的堆，则OutOfMemoryError抛出。此功能旨在防止应用程序长时间运行，而由于堆太小而几乎没有进展，甚至没有进展。如有必要，可以通过-XX:-UseGCOverheadLimit在命令行中添加选项来禁用此功能。</p>
+<h2 id="Java-Hotspot-VM在JDK-8中有两个主要的并发收集器："><a href="#Java-Hotspot-VM在JDK-8中有两个主要的并发收集器：" class="headerlink" title="Java Hotspot VM在JDK 8中有两个主要的并发收集器："></a>Java Hotspot VM在JDK 8中有两个主要的并发收集器：</h2><p>并发标记扫描（CMS）收集器：此收集器用于那些希望更短的垃圾收集暂停并能够与垃圾收集共享处理器资源的应用程序。</p>
+<p>垃圾优先的垃圾收集器(G1)：此服务器样式的收集器用于具有大内存的多处理器计算机。它在实现高吞吐量的同时极有可能满足垃圾收集暂停时间目标。</p>
+<p>大多数并发的收集器以处理器资源（否则应用程序可以使用）为代价，以缩短主要的收集暂停时间。最明显的开销是在集合的并发部分使用一个或多个处理器。在N个处理器系统上，集合的并发部分将使用可用处理器的K / N，其中1 &lt;= K &lt;= ceiling { N / 4}。（请注意，对K的精确选择和范围可能会发生变化。）除了在并发阶段使用处理器外，还会产生额外的开销来实现并发。因此，虽然并发收集器的垃圾收集暂停通常要短得多，但应用程序吞吐量也往往比其他收集器要低一些。</p>
+<p>在具有多个处理核心的机器上，处理器在收集的并发部分可用于应用程序线程，因此并发垃圾收集器线程不会“暂停”应用程序。这通常会导致更短的暂停时间，但是再次有较少的处理器资源可用于应用程序，并且应该会出现一些减慢的情况，尤其是在应用程序最大程度地使用所有处理核心的情况下。随着N的增加，由于并发垃圾收集而导致的处理器资源减少将变得更小，并且并发收集的收益也会增加。的部分并行模故障在并发标记扫描（CMS）集电极讨论了这样的缩放潜在限制。</p>
+<p>因为在并发阶段使用至少一个处理器进行垃圾收集，所以并发收集器通常不会在单处理器（单核）计算机上提供任何好处。但是，有一种适用于CMS的单独模式（非G1）可以在只有一个或两个处理器的系统上实现低暂停。看到增量模式在并发标记扫描（CMS）收集器的详细信息。Java SE 8中不推荐使用此功能，以后的主要版本中可能会删除该功能。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/20/develop/tcp%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E5%8F%8A%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6/" rel="next" title="tcp流量控制及拥塞控制">
+                <i class="fa fa-chevron-left"></i> tcp流量控制及拥塞控制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/10/develop/kmp/" rel="prev" title="字符串匹配之KMP">
+                字符串匹配之KMP <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">blue</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/%20%7C%7C%20archive">
+                
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%BA%E4%BD%93%E5%B7%A5%E7%A8%8B%E5%AD%A6"><span class="nav-number">1.</span> <span class="nav-text">人体工程学</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%A1%8C%E4%B8%BA%E7%9A%84%E8%B0%83%E6%95%B4"><span class="nav-number">1.1.</span> <span class="nav-text">基于行为的调整</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E6%9A%82%E5%81%9C%E6%97%B6%E9%97%B4%E7%9B%AE%E6%A0%87"><span class="nav-number">1.2.</span> <span class="nav-text">最大暂停时间目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%9E%E5%90%90%E9%87%8F%E7%9B%AE%E6%A0%87"><span class="nav-number">1.3.</span> <span class="nav-text">吞吐量目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B6%B3%E8%BF%B9%E7%9B%AE%E6%A0%87"><span class="nav-number">1.4.</span> <span class="nav-text">足迹目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E6%95%B4%E7%AD%96%E7%95%A5"><span class="nav-number">1.5.</span> <span class="nav-text">调整策略</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E4%BB%A3"><span class="nav-number">2.</span> <span class="nav-text">分代</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E8%80%83%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">性能考量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E9%87%8F"><span class="nav-number">2.2.</span> <span class="nav-text">测量</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E6%95%B4%E5%88%86%E4%BB%A3%E5%A4%A7%E5%B0%8F"><span class="nav-number">3.</span> <span class="nav-text">调整分代大小</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B4%E8%BD%BB%E4%BB%A3"><span class="nav-number">3.1.</span> <span class="nav-text">年轻代</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B8%E5%AD%98%E8%80%85%E7%A9%BA%E9%97%B4%E5%A4%A7%E5%B0%8F"><span class="nav-number">3.2.</span> <span class="nav-text">幸存者空间大小</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%94%B6%E9%9B%86%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">选择收集器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E6%94%B6%E9%9B%86%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">并行收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%96%E4%BB%A3%E5%A4%A7%E5%B0%8F%E8%B0%83%E6%95%B4"><span class="nav-number">5.1.</span> <span class="nav-text">世代大小调整</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%BB%98%E8%AE%A4%E5%A0%86%E5%A4%A7%E5%B0%8F"><span class="nav-number">5.2.</span> <span class="nav-text">默认堆大小</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AFJVM%E9%BB%98%E8%AE%A4%E7%9A%84%E5%88%9D%E5%A7%8B%E5%92%8C%E6%9C%80%E5%A4%A7%E5%A0%86%E5%A4%A7%E5%B0%8F"><span class="nav-number">5.3.</span> <span class="nav-text">客户端JVM默认的初始和最大堆大小</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8JVM%E9%BB%98%E8%AE%A4%E7%9A%84%E5%88%9D%E5%A7%8B%E5%92%8C%E6%9C%80%E5%A4%A7%E5%A0%86%E5%A4%A7%E5%B0%8F"><span class="nav-number">5.4.</span> <span class="nav-text">服务器JVM默认的初始和最大堆大小</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E5%AE%9A%E5%88%9D%E5%A7%8B%E5%92%8C%E6%9C%80%E5%A4%A7%E5%A0%86%E5%A4%A7%E5%B0%8F"><span class="nav-number">5.5.</span> <span class="nav-text">指定初始和最大堆大小</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java-Hotspot-VM%E5%9C%A8JDK-8%E4%B8%AD%E6%9C%89%E4%B8%A4%E4%B8%AA%E4%B8%BB%E8%A6%81%E7%9A%84%E5%B9%B6%E5%8F%91%E6%94%B6%E9%9B%86%E5%99%A8%EF%BC%9A"><span class="nav-number">5.6.</span> <span class="nav-text">Java Hotspot VM在JDK 8中有两个主要的并发收集器：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">blue</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+ <div class="powered-by">ICP证：<a class="theme-link" target="_blank" href="http://www.beian.miit.gov.cn">浙ICP备17007762号</a></div>
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/baidustatic.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

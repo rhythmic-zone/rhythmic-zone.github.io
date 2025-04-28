@@ -1,35 +1,1251 @@
-{% extends '_layout.swig' %}
-{% import '_macro/post.swig' as post_template %}
-{% import '_macro/sidebar.swig' as sidebar_template %}
+<!DOCTYPE html>
 
 
-{% block title %}{{ page.title }} | {{ title }}{% endblock %}
-
-{% block page_class %}page-post-detail{% endblock %}
 
 
-{% block content %}
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.3.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.3.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.3.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.3.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '6.3.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":true,"scrollpercent":false,"onmobile":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="NAT，NAPT网络地址转换（NAT,Network Address Translation),早期的NAT指的是Basic NAT（静态NAT），它在技术上比较简单一点，仅支持地址转换，不支持端口映射，这就需要对每一个当前连接都要对应一个IP地址，因此要维护一个公网的地址池。我们可以看出，Basic NAT一个明显的缺陷就是：同一时刻只能少量位于NAT后面机器能够与外部交互（要看NAT有几个外网">
+<meta property="og:type" content="article">
+<meta property="og:title" content="p2p穿透NAT">
+<meta property="og:url" content="https://rhythmic-zone.github.io/2018/11/21/develop/p2p%E7%A9%BF%E9%80%8FNAT/index.html">
+<meta property="og:site_name" content="rhythmic-zone">
+<meta property="og:description" content="NAT，NAPT网络地址转换（NAT,Network Address Translation),早期的NAT指的是Basic NAT（静态NAT），它在技术上比较简单一点，仅支持地址转换，不支持端口映射，这就需要对每一个当前连接都要对应一个IP地址，因此要维护一个公网的地址池。我们可以看出，Basic NAT一个明显的缺陷就是：同一时刻只能少量位于NAT后面机器能够与外部交互（要看NAT有几个外网">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rhythmic-zone.github.io/images/1500259554093_2094_1500259554660.jpg">
+<meta property="article:published_time" content="2018-11-21T06:09:27.000Z">
+<meta property="article:modified_time" content="2021-03-19T02:52:33.134Z">
+<meta property="article:author" content="blue">
+<meta property="article:tag" content="java,工具,生活">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rhythmic-zone.github.io/images/1500259554093_2094_1500259554660.jpg">
+
+
+
+
+
+
+  <link rel="canonical" href="https://rhythmic-zone.github.io/2018/11/21/develop/p2p穿透NAT/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>p2p穿透NAT | rhythmic-zone</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">rhythmic-zone</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
 
   <div id="posts" class="posts-expand">
-    {{ post_template.render(page) }}
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://rhythmic-zone.github.io/2018/11/21/develop/p2p%E7%A9%BF%E9%80%8FNAT/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="blue">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rhythmic-zone">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">p2p穿透NAT
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-11-21 14:09:27" itemprop="dateCreated datePublished" datetime="2018-11-21T14:09:27+08:00">2018-11-21</time>
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="NAT，NAPT"><a href="#NAT，NAPT" class="headerlink" title="NAT，NAPT"></a>NAT，NAPT</h1><p>网络地址转换（NAT,Network Address Translation),早期的NAT指的是Basic NAT（静态NAT），它在技术上比较简单一点，仅支持地址转换，不支持端口映射，这就需要对每一个当前连接都要对应一个IP地址，因此要维护一个公网的地址池。我们可以看出，Basic NAT一个明显的缺陷就是：同一时刻只能少量位于NAT后面机器能够与外部交互（<em>要看NAT有几个外网IP</em>）。后期的NAT基本都指的是NAPT（<em>网络地址端口转换</em>）了，这种方式支持端口映射并允许多台主机共享一个公用IP地址，这样就可以支持同时多个位于NAT后面的机器与外部进行交互，支持端口转换的NAT又可以分成两类：</p>
+<ul>
+<li>源地址转换（SNAT）</li>
+<li>目的地址转换（NAT）</li>
+</ul>
+<span id="more"></span>
+<h1 id="NAT带来的问题"><a href="#NAT带来的问题" class="headerlink" title="NAT带来的问题"></a>NAT带来的问题</h1><p>NAT在缓解IPv4地址紧张的同时，也带来了不少问题：</p>
+<ul>
+<li><strong>NAT使IP会话的保持失效变短</strong>。NAT设备建立的内网IP、端口到外网IP，端口的映射表是有保活期的，如果在一个超时时间内，该映射没有实际的数据传输，那么NAT会过期并回收这个映射表给其他通信链路（<em>IP和端口资源有限，其通信的链路是无限的</em>），为了避免这种通信链路提前被中断，很多应用层协议在设计时考虑一个连接保活机制，即在一段时间内没有数据需要发送，就主动发送一个NAT能感知的消息，这么做的目的就是避免NAT过期</li>
+<li><strong>NAT在实现上将多个内部主机发出的连接复用到一个IP上，这就使依赖IP进行主机跟踪的机制都失效了</strong>。对于NAT后面的N多主机，在外部看来都是同一个主机（NAT设备），于是来自同一IP数据包一定是同一主机的判断就不准确，这样基于这个前提的机制都会有问题（如TCP的TIME_WAIT的回收和重用）。</li>
+<li><strong>NAT工作机制依赖于修改IP包头的信息，这会妨碍一些安全协议的工作</strong> 。NAT篡改了IP地址、传输层口号及校验和</li>
+<li><strong>NAT限制了一些高层协议（FTP，Quake, Sip)</strong>的Peer两端的P2P通信。一般情况下，NAT不允许外部的peer节点主动连接或发送数据包给NAT后的主机，主要是因为：<ul>
+<li>出于安全考虑，避免来自网络外部的攻击，隐藏并保护网络内部的计算机</li>
+<li>位于NAT后面的主机，对于主动进来的数据包，NAT一般不知道该路由给哪个主机（NAT设备上没有相关的转发项）</li>
+</ul>
+</li>
+</ul>
+<p>由于这种特性，那么在NAT环境下，实现P2P通信主要有如下步骤：</p>
+<ol>
+<li>在server的协助下，通信两端尝试相互连接，如果两端连接不成功后进入<em>第2步</em></li>
+<li>这个步骤就是服务器中转（relay)，简单的说就是peer1将要发给peer2的数据发送给Server，然后由Server帮忙转发给peer2,peer2同理</li>
+</ol>
+<p>对于实现P2P通信，步骤1是大家下功夫最多的，其原因比较简单，就是步骤2需要消耗较多的服务器资源，成本比较高。步骤1实现P2P两个节点间的直接通信，在资源消耗和效率上都是比较好的。</p>
+<h1 id="P2P通信穿越NAT的方法"><a href="#P2P通信穿越NAT的方法" class="headerlink" title="P2P通信穿越NAT的方法"></a>P2P通信穿越NAT的方法</h1><p>目前常见的技术有：</p>
+<ul>
+<li>应用层网关</li>
+<li>中间件技术</li>
+<li>打洞技术</li>
+<li>Relay（服务器中转）</li>
+</ul>
+<h2 id="应用层网关"><a href="#应用层网关" class="headerlink" title="应用层网关"></a>应用层网关</h2><p>应用层网关(ALG)是解决NAT对应用层协议无感知的一个最常用方法，已经被NAT设备厂商广泛采用，成为NAT设备的一个必需功能。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>利用带有ALG功能的NAT对特定应用层协议的支持和理解，在一个NAT网络检测到新的连接请求时，需要判断是否为已知应用类型，这通常是基于连接的传输层端口信息来识别的。在识别为已知应用时，再调用相应功能对报文的深层内容进行检查，当发现任何形式表达的IP地址和端口时，将会把这些信息同步转换，并且为这个新连接创建一个附加的转换表项。这样，当报文到达公网侧的目的主机时，应用层协议中携带的信息就是NAT网关提供的地址和端口。例如：下图，对于使用主动模式的FTP协议(PORT方式)，就需要AGL的支持了。<br><img src="/images/1500259554093_2094_1500259554660.jpg" alt=""><br>由于FTP协议通信需要两个TCP连接，一个是命令链路，用来在FTP客户端与服务器之间传递命令；另一个是数据链路，用来上传或下载数据。如上图，位于NAT后面的FTP client(192.168.1.2)首先发起一个TCP连接(命令链路)连上外网FTP Server(8.8.8.1)，然后发送PORT报文(192.168.1.2，1084)说自己在1084端口接收数据，然后进过ALG处理PORT报文变成(8.8.8.1，12487)，同NAT建立其一条(192.168.1.2，1084 &lt;—&gt;8.8.8.1，12487)映射。这样FTP Server发往(8.8.8.1，12487)的数据就会被转到(192.168.1.2，1084)，从而实现数据传输(如果没经过ALG处理，那么FTP Server直接连接192.168.1.2，1084是无法连接上的)。</p>
+<h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><p>ALG技术是利用NAT本身的支持来进行NAT的穿越，这个方案有很大限制，主要的原因是ALG都是为特定协议的特定规范版本而开发的，然而不管是协议本身，还是协议的数量都在变化，这就使得ALG适应性不强。</p>
+<h2 id="中间件技术"><a href="#中间件技术" class="headerlink" title="中间件技术"></a>中间件技术</h2><p>这是一种通过开发通用方法解决NAT穿越问题的努力。与前者不同之处是，AGL技术中NAT网关是这一解决方案的唯一参与者，而中间件技术中客户端会参与网关公网映射信息的维护。UPnP就是这样一种方法，UPnP中文全称为通用即插即用，是一个通用的网络终端与网关的通信协议，具备信息发布和管理控制的能力。</p>
+<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>NAT只要理解客户端的请求并按照要求去分配响应的映射转换表，不需要自己去分析客户端的应用层数据。网关映射请求可以为客户动态添加映射表项。此时，NAT不再需要理解应用层携带的信息，只转换IP地址和端口信息。而客户端通过控制消息或信令发到公网侧的信息中，直接携带公网映射的IP地址和端口，接收端可以按照此信息建立数据连接。NAT网关在收到数据或连接请求时，按照UPnP建立的表项只转换地址和端口信息，不关心内容，再将数据转发到内网。</p>
+<h3 id="限制-1"><a href="#限制-1" class="headerlink" title="限制"></a>限制</h3><p>这种方案需要网关、内部主机和应用程序都支持UPnP技术，且组网允许内部主机和NAT网关之间可以直接交换UPnP信令才能实施。</p>
+<h2 id="打洞技术（Hole-Punching"><a href="#打洞技术（Hole-Punching" class="headerlink" title="打洞技术（Hole Punching)"></a>打洞技术（Hole Punching)</h2><p>Hole Punching技术是工作在运输层的技术，可以屏蔽上层应用层的差异，并且不需要NAT网关特定的支持，因此其通用性比较强，应用性也比较广。</p>
+<h3 id="原理-2"><a href="#原理-2" class="headerlink" title="原理"></a>原理</h3><p>打洞技术的原理比较简单，就是NAT内网的节点需要在NAT上建立自己的一条转发映射关系(这就是所谓的在NAT上打下一个洞)，然后外网的节点就通过这个”洞”来进行通信。为描述方便，我们将一对IP地址和端口信息的组合称之为一个Endpoint，打洞原理可以简化为下面三个过程：</p>
+<ul>
+<li>首先位于NAT后的Peer1节点需要向外发送数据包，以便让NAT建立起内网Endpoint1(IP1、PORT1)和外网Endpoint2(IP2、PORT2)的映射关系；</li>
+<li>然后通过某种方式将映射后的外网Endpoint2通知给对端节点Peer2；</li>
+<li>最后Peer2往收到的外网Endpoint2发送数据包，然后该数据包就会被NAT转发给内网的Peer1</li>
+</ul>
+<p>如果全部会被转发给内网Peer1，那会不会太不安全了，只要知道内网Peer1的映射后的外网Endpoint2，就可以给穿透NAT给内网Peer1发送数据，这样内网Peer1不就很容易遭到攻击了？如果全部都不转发给内网Peer1，这样Peer1只能向外发数据，而无法收到外面的数据，严重影响Peer1的正常通信。那么，这就比较明了了，我们需要的是一部分可以转发，另外一部分不转发。这就涉及到NAT对外来数据包的一个过滤规则了，而疑问(1)提到的映射关系建立的规则，这涉及到NAT的Endpoint的映射规则。那么问题来了，有什么方法可以知道NAT的Endpoint映射规则和对外来数据包的过滤规则呢？</p>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><p>由上面原理的讨论我们知道，要实现打洞穿越NAT，首先需要知道NAT的行为规则(NAT的Endpoint映射规则和对外来数据包的过滤规则)，这样才能更好地实现打洞穿越。那NAT有哪些行为类型？有什么办法来侦测NAT的行为呢？</p>
+<h4 id="NAT行为类型与侦测方法"><a href="#NAT行为类型与侦测方法" class="headerlink" title="NAT行为类型与侦测方法"></a>NAT行为类型与侦测方法</h4><p>NAT的行为类型和侦测方法是由STUN(首先在RFC3489中定义，英文全称是Simple Traversal of UDP Through NATs)协议来描述的，STUN协议包括了RFC3489、RFC5389、RFC5780、RFC5769几个系列文档。早期的STUN协议是由RFC3489（经典的STUN）来描述，其定义的NAT行为类型如下：</p>
+<ol>
+<li><p>Full Cone NAT - 完全锥形NAT<br>所有从同一个内网IP和端口号Endpoint1发送过来的请求都会被映射成同一个外网IP和端口号Endpoint2，并且任何一个外网主机都可以通过这个映射的Endpoint2向这台内网主机发送包。也就是外网所有发往Endpoint2的数据包都会被NAT转发给Endpoint1。由于对外部请求的来源无任何限制，因此这种方式虽然足够简单，但却不安全。</p>
+</li>
+<li><p>Restricted Cone NAT - 限制锥形NAT<br>它是Full Cone的受限版本：所有来自同一个内网Endpoint1的请求均被NAT映射成同一个外网Endpoint2，这与Full Cone相同。但不同的是，只有当内网Endpoint1曾经发送过报文给外部主机（假设其IP地址为IP3）后，外部主机IP3发往Endpoint2的数据包才会被NAT转发给Endpoint1。这意味着，NAT设备只向内转发那些来自于当前已知的外部主机的数据包，从而保障了外部请求来源的安全性</p>
+</li>
+<li><p>Port Restricted Cone NAT - 端口限制锥形NAT<br>它是Restricted Cone NAT的进一步受限版，与限制锥形NAT很相似，只不过它包括端口号PORT。只有当内网Endpoint1曾经发送过报文给外部Endpoint3(包括IP和端口了)，Endpoint3发往Endpoint2的数据包才会被NAT转发给Endpoint1。端口号PORT这一要求进一步强化了对外部报文请求来源的限制，从而较Restrictd Cone更具安全性。</p>
+</li>
+<li><p>Symmetric NAT - 对称NAT<br>上面的[1][2][3]所有的Cone NAT中，映射关系只和内网的源Endpoint1相关，只要源Endpoint1不变其都会被映射成同一个Endpoint2。而对称NAT的映射关系不只与源Endpoint1相关，还与目的Endpoint3相关。也就是源Endpoint1发往目的Endpoint30的请求被映射为Endpoint20，而源Endpoint1发往目的Endpoint31的请求，则被映射为Endpoint21了。此外，只有收到过内网主机发送的数据的外网主机才可以反过来向内网主机发送数据包。</p>
+</li>
+</ol>
+<p>经典 STUN 定义的 NAT 行为类型是将NAT的Mapping Behavior （映射规则）和Filtering Behavior（过滤规则）统一来归类的，这样对Symmetric NAT类型的归类过于笼统，使得许多 NAT 不完全符合由它定义的类型。于是后来，RFC3489被废弃并由RFC5389来替代，在RFC5389中，将Mapping Behavior （映射规则）和Filtering Behavior（过滤规则）分开来，定义了3种Mapping Behavior （映射规则）和3种Filtering Behavior（过滤规则），一共有9种组合。为什么是3种呢？其实理由很简单，对于一个特定的内网源Endpoint1，影响其映射关系的因素不外乎就4种情况：</p>
+<ol>
+<li>目的IP和目的端口PORT都无关</li>
+<li>目的IP和目的端口PORT都相关</li>
+<li>仅仅目的IP相关</li>
+<li>仅仅目的PORT相关</li>
+</ol>
+<p>对于4仅仅考虑一下PORT信息有点鸡肋，基本和1差不多，于是把4去掉了。同样，对于过滤规则也一样。3种Mapping Behavior （映射规则）和 Filtering Behavior（过滤规则）如下：</p>
+<p>Mapping Behavior:</p>
+<ol>
+<li><p>Endpoint-Independent Mapping<br>对于一个内网的EndpointP，其映射的外网EndpointG是基本固定的，不会随着通信外部主机的不同而变化。</p>
+</li>
+<li><p>Address and Port-Dependent Mapping<br>对于一个内网的EndpointP，如果与之通信的外部为EndpointGB1，那么EndpointP就会被NAT映射成EndpointG1；如果与之通信的外部为EndpointGB2，那么EndpointP就会被NAT映射成EndpointG2。也就是只要之通信的外部为EndpointGB发生变化，那么映射的外网EndpointG就会变化。</p>
+</li>
+<li><p>Address-Dependent Mapping<br>对于一个内网的EndpointP，如果与之通信的外部为EndpointGB1，那么EndpointP就会被NAT映射成EndpointG1；如果与之通信的外部为EndpointGB2(如果EndpointGB2的IP和EndpointGB1的相同)，那么EndpointP同样会被NAT映射成EndpointG1，否则就会被NAT映射成EndpointG2。也就是只要之通信的外部为EndpointGB的IP发生变化，那么映射的外网EndpointG就会变化。</p>
+</li>
+</ol>
+<p>Filtering Behavior:</p>
+<ol>
+<li><p>Endpoint-Independent Filtering<br>对于这种过滤类型，NAT在在自己的一个外网EndpointG1收到数据包，只要找到与之对应的内网EndpointP1，NAT就会转发这个数据包给相应的内网EndpointP1，不管这个数据包的来源是那里。(一般来说，这样过滤规则的NAT是比较少的，因为这样的安全系数比较低)</p>
+</li>
+<li><p>Address and Port-Dependent Filtering<br>对于这种过滤类型，NAT在自己的一个外网EndpointG1收到来源是EndpointGA1数据包，这个时候NAT要判断自己是否曾经通过自己的EndpointG1给EndpointGA1发送过数据包，如果曾经发过，那么NAT就允许该数据包通过NAT并路由给内网与之对于的内网EndpointP1；如果没发过，那么NAT会不允许该数据包通过NAT。</p>
+</li>
+<li><p>Address-Dependent Filtering<br>对于这种过滤类型，NAT在自己的一个外网EndpointG1收到来源是EndpointGA1数据包，这个时候NAT要判断自己是否曾经通过自己的EndpointG1给和EndpointGA1的IP相同的机器发送过数据包(这里会忽略端口)，如果曾经发过，那么NAT就允许该数据包通过NAT并路由给内网与之对于的内网EndpointP1；如果没发过，那么NAT会不允许该数据包通过NAT。</p>
+</li>
+</ol>
+<p>RFC5389只是定义了协议的相关属性、机制、报文结构以及一些相关的安全注意点等等，并有没对怎么进行完整的NAT类型侦测做介绍。而对完整NAT类型侦测过程主要由RFC5780这个文档来描述。完整的NAT类型侦测的过程主要在RFC5780文档的4.3和4.4节，主要分为NAT映射规则（Determining NAT Mapping Behavior）和NAT过滤规则（Determining NAT Filtering Behavior），下面对具体的侦测过程做介绍：</p>
+<p>要进行NAT类型的侦测，需要一个具有双公网IP的服务器来协助侦测，我们称该服务器为STUN Server。假设STUN Server的双IP分别为IP_SA(125.227.152.3)和IP_SB(125.227.152.4) 监听的两个端口分别为PORT_SA(4777)和PORT_SB(4888)，客户端A的内网和端口分别为IP_CA(10.70.142.12)和PORT_CA(1234)。</p>
+<ol>
+<li><p>客户端A以IP_CA:PORT_CA给STUN Server的IP_SA:PORT_SA发送一个bind请求，STUN server以IP_SA:PORT_SA给客户端A的IP_CA:PORT_CA回复响应，响应内容大体为：（NAT映射后的IP地址和端口为：IP_MCA1:PORT_MCA1，STUN Server的另外一个IP地址和端口为：IP_SB:PORT_SB）。这个时候客户端判断，如果IP_CA:PORT_CA == IP_MCA1:PORT_MCA1，那么该客户端是拥有公网IP的，NAT类型侦测结束。</p>
+</li>
+<li><p>客户端A以IP_CA:PORT_CA给STUN server的IP_SB:PORT_SA(相对步骤1 ip改变了)发送一个bind请求，STUN server以IP_SB:PORT_SA给客户端A的IP_CA:PORT_CA回复响应，响应内容大体为：（NAT映射后的IP地址和端口为：IP_MCA2:PORT_MCA2）。这个时候客户端判断，如果IP_MCA1:PORT_MCA1 == IP_MCA2:PORT_MCA2，那么NAT是Endpoint Independent Mapping的映射规则，也就是同样的内网地址IP_CA:PORT_CA经过这种NAT映射后的IP_M:PORT_M是固定不变的；如果IP_MCA1:PORT_MCA1 != IP_MCA2:PORT_MCA2,那么就要进行下面的第3步测试。</p>
+</li>
+<li><p>客户端A以IP_CA:PORT_CA给STUN server的IP_SB:PORT_SB(相对步骤1 ip和port改变了)发送一个bind请求，STUN server以IP_SB:PORT_SB给客户端A的IP_CA:PORT_CA回复响应，响应内容大体为：（NAT映射后的IP地址和端口为：IP_MCA3:PORT_MCA3）。这个时候客户端判断，如果IP_MCA2:PORT_MCA2== IP_MCA3:PORT_MCA3，那么NAT是Address Dependent Mapping的映射规则，也就是只要是目的IP是相同的，那么同样的内网地址IP_CA:PORT_CA经过这种NAT映射后的IP_M:PORT_M是固定不变的；如果IP_MCA2:PORT_MCA2!= IP_MCA3:PORT_MCA3，那么NAT是Address and Port Dependent Mapping，只要目的IP和PORT中有一个不一样，那么同样的内网地址IP_CA:PORT_CA经过这种NAT映射后的IP_M:PORT_M是不一样的。</p>
+</li>
+</ol>
+<p>以上三个步骤是进行Mapping Behavior的侦测，下面两个步骤是进行Filtering Behavior侦测</p>
+<ol start="4">
+<li><p>客户端A以IP_CA:PORT_CA给STUN server的IP_SA:PORT_SA发送一个bind请求（请求中带CHANGE-REQUEST attribute来要求stun server改变IP和PORT来响应），STUN server以IP_SB:PORT_SB给客户端A的IP_CA:PORT_CA回复响应。如果客户端A能收到STUN server的响应，那么NAT是Endpoint-Independent Filtering的过滤规则，也就是只要给客户端A的IP_CA:PORT_CA映射后的IP_MCA:PORT_MCA地址发送数据都能通过NAT到达客户端A的IP_CA:PORT_CA（这种过滤规则的NAT估计很少）。如果不能收到STUN server的响应，那么需要进行下面的第五步测试。</p>
+</li>
+<li><p>客户端A以IP_CA:PORT_CA给STUN server的IP_SA:PORT_SA发送一个bind请求（请求中带CHANGE-REQUEST attribute来要求stun server改变PORT来响应），STUN server以IP_SA:PORT_SB给客户端A的IP_CA:PORT_CA回复响应。如果客户端A能收到STUN server的响应，NAT是Address-Dependent Filtering的过滤规则，也就是只要之前客户端A以IP_CA:PORT_CA给IP为IP_D的主机发送过数据，那么在NAT映射的有效期内，IP为IP_D的主机以任何端口给客户端A的IP_CA:PORT_CA映射后的IP_MCA:PORT_MCA地址发送数据都能通过NAT到达客户端A的IP_CA:PORT_CA；如果不能收到响应，NAT是Address and Port-Dependent Filtering的过滤规则，也即是只有之前客户端A以IP_CA:PORT_CA给目的主机的IP_D:PORT_D发送过数据，那么在NAT映射的有效期内，只有以IP_D:PORT_D给客户端A的IP_CA:PORT_CA映射后的IP_MCA:PORT_MCA地址发送数据才能通过NAT到达客户端A的IP_CA:PORT_CA。</p>
+</li>
+</ol>
+<p>通过以上5个步骤就能完成完整的NAT类型侦测。将NAT映射规则和过滤规则组合起来就形成9中不同的NAT行为类型。</p>
+<ol>
+<li>Endpoint Independent Mapping和Endpoint-Independent Filtering组合对应于RFC3489中的Full Cone NAT</li>
+<li>Endpoint Independent Mapping和Address-Dependent Filtering组合对应于RFC3489中的Restricted Cone NAT。</li>
+<li>Endpoint Independent Mapping和Address and Port-Dependent Filtering组合对应于RFC3489中的Port Restricted Cone NAT。</li>
+<li>Address and Port-Dependent Mapping和Address and Port-Dependent Filtering组合是RFC3489中所说的Symmetric NAT。<br>可见RFC3489只描述了9种NAT组合行为类型中的4种。最后一个文档rfc5769，定义了一些STUN协议的测试数据用于测试STUN server的正确性。</li>
+</ol>
+<h4 id="NAT打洞过程"><a href="#NAT打洞过程" class="headerlink" title="NAT打洞过程"></a>NAT打洞过程</h4><p>“打洞”方式穿越NAT有两种形式：TCP”打洞”和UDP”打洞”。原理上，TCP”打洞”与UDP”打洞”是没有本质的区别的。然而在实现上，TCP”打洞”的成功率远没UDP”打洞”的成功率高，其主要原因有三：</p>
+<ol>
+<li><p>有些NAT防火墙策略对TCP协议不是很友好。有些NAT的防火墙策略不允许来路不明的外部向内网机器发起TCP连接。由于TCP是有连接的，NAT比较容易分清哪些是NAT    内网机器主动进行通信的外部节点，这样防火墙策略比较明确。而UDP是无连接的，没有连接来标明一个数据流，协议比较简单，这样NAT支持的比较多。</p>
+</li>
+<li><p>TCP协议本身。由于TCP的TIME_WAIT状态引起，同一个NAT后面的其他主机发起的连接被误判。</p>
+</li>
+<li><p>TCP协议的实现API。因为标准的Berkeley sockets API是围绕C/S编程而设计的。这个API通过connect()允许一个TCP流套接字初始化一个向外的连接，通过listen()和 accept()监听一个外入的连接，一个套接字不能既用来监听又用来初始化向外的连接。更进一步讲， TCP套接字通常与本地主机上的TCP端口一一对应：一个套接字绑定到本地主机机上的某个端口后，另一个套接字就不能再绑定到该端口。然而TCP打洞要成功，需要一个本地的TCP端口既可以监听外入的连接，同时又可以发起多个向外的连接。幸运的是，所有主流的操作系统都支持一个特殊的socket选项SO_REUSEADDR，它运行应用程序绑定多个设置了该选项的套接字到同一端口。BSD系统引入了SO_REUSEPORT选项来控制端口重用，从而把端口重用和地址重用相分离。在这样的系统中，两个选项都需要被设置。尽管如此，要进行TCP打洞需要进行TCP三次握手的同时打开，但是有些TCP/IP的实现，可能不支持这种同时打开的情况，这样也就无法建立TCP连接了。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/27/util/intellij/" rel="next" title="intellij激活">
+                <i class="fa fa-chevron-left"></i> intellij激活
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/26/develop/service-mesh/" rel="prev" title="Service Mesh (服务网格)">
+                Service Mesh (服务网格) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
 
     <div class="post-spread">
-      {% if theme.jiathis %}
-        {% include '_partials/share/jiathis.swig' %}
-      {% elseif theme.baidushare %}
-        {% include '_partials/share/baidushare.swig' %}
-      {% elseif theme.add_this_id %}
-        {% include '_partials/share/add-this.swig' %}
-      {% endif %}
+      
     </div>
   </div>
 
-{% endblock %}
 
-{% block sidebar %}
-  {{ sidebar_template.render(true) }}
-{% endblock %}
+          </div>
+          
 
-{% block script_extra %}
-  {% include '_scripts/pages/post-details.swig' %}
-{% endblock %}
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">blue</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/%20%7C%7C%20archive">
+                
+                    <span class="site-state-item-count">26</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NAT%EF%BC%8CNAPT"><span class="nav-number">1.</span> <span class="nav-text">NAT，NAPT</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NAT%E5%B8%A6%E6%9D%A5%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">NAT带来的问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#P2P%E9%80%9A%E4%BF%A1%E7%A9%BF%E8%B6%8ANAT%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">P2P通信穿越NAT的方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82%E7%BD%91%E5%85%B3"><span class="nav-number">3.1.</span> <span class="nav-text">应用层网关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">3.1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E5%88%B6"><span class="nav-number">3.1.2.</span> <span class="nav-text">限制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%8A%80%E6%9C%AF"><span class="nav-number">3.2.</span> <span class="nav-text">中间件技术</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E5%88%B6-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">限制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E6%B4%9E%E6%8A%80%E6%9C%AF%EF%BC%88Hole-Punching"><span class="nav-number">3.3.</span> <span class="nav-text">打洞技术（Hole Punching)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-2"><span class="nav-number">3.3.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">3.3.2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NAT%E8%A1%8C%E4%B8%BA%E7%B1%BB%E5%9E%8B%E4%B8%8E%E4%BE%A6%E6%B5%8B%E6%96%B9%E6%B3%95"><span class="nav-number">3.3.2.1.</span> <span class="nav-text">NAT行为类型与侦测方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NAT%E6%89%93%E6%B4%9E%E8%BF%87%E7%A8%8B"><span class="nav-number">3.3.2.2.</span> <span class="nav-text">NAT打洞过程</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">blue</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+ <div class="powered-by">ICP证：<a class="theme-link" target="_blank" href="http://www.beian.miit.gov.cn">浙ICP备17007762号</a></div>
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.3.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/baidustatic.js?v=6.3.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.3.0"></script>
+
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.3.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.3.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.3.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
