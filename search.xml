@@ -4,23 +4,79 @@
   
     
     <entry>
-      <title>软考案例理论</title>
-      <link href="2025/04/28/ruankao/%E6%A1%88%E4%BE%8B%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/"/>
-      <url>2025/04/28/ruankao/%E6%A1%88%E4%BE%8B%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80/</url>
+      <title>嵌入式系统架构设计</title>
+      <link href="2025/04/28/develop/ruankao/%E5%B5%8C%E5%85%A5%E5%BC%8F/"/>
+      <url>2025/04/28/develop/ruankao/%E5%B5%8C%E5%85%A5%E5%BC%8F/</url>
       
-        <content type="html"><![CDATA[<p>软考中涉及到的需要记忆的理论基础，如嵌入式系统架构设计中鸿蒙操作系统架构的4个技术特性、DARTS方法的优势、GENESYS架构的主要特征及优势等</p><span id="more"></span><h1 id="鸿蒙操作系统架构的4个特性"><a href="#鸿蒙操作系统架构的4个特性" class="headerlink" title="鸿蒙操作系统架构的4个特性"></a>鸿蒙操作系统架构的4个特性</h1><ol><li>分布式架构用于终端操作系统，实现跨终端无缝协同体验</li><li>确定时延引擎和高性能进程间通信技术，实现系统的流畅</li><li>基于微内核架构，重塑终端设备的可信安全</li><li>统一开发环境，一次开发，多端部署，实现跨终端生态共享</li></ol><h1 id="DARTS-实时系统设计方法"><a href="#DARTS-实时系统设计方法" class="headerlink" title="DARTS(实时系统设计方法)"></a>DARTS(实时系统设计方法)</h1><p>基于传统的结构化分析方法，扩展行为建模部分。共分成5个部分：用实时结构化分析方法开发系统规范、将系统划分为多个并发任务、定义任务间接口、设计每个任务、设计过程成果</p><p>DARTS的方法优势有：</p><ol><li>强调将系统分解为并发任务，并提供确认任务的标准</li><li>提供定义任务间接口的指南</li><li>强调用任务架构图的重要性</li><li>提供实时结构化分析规格到实时结构化设计的转换</li></ol><p>DARTS方法不足如下：</p><ol><li>DARTS使用信息隐藏技术封装数据存储，封装性不好</li><li>如果实时结构化分析阶段完成的不好，那么任务的结构化工作会更加困难</li></ol><h1 id="GENESYS-面向安全攸关的跨领域系统架构"><a href="#GENESYS-面向安全攸关的跨领域系统架构" class="headerlink" title="GENESYS(面向安全攸关的跨领域系统架构)"></a>GENESYS(面向安全攸关的跨领域系统架构)</h1><p>GENESYS是一种通用的嵌入式架构平台。采用<strong>消息交换</strong>方式实现软硬件构件的抽象级别提升，使得构件在结构规范基础上可以被重用，而不需要知道构件的内部实现。<br>GENESYS提供3组服务：领域无关服务、领域专用服务、应用专用服务(包含中间件)</p>]]></content>
+        <content type="html"><![CDATA[<p>嵌入式系统由硬件和软件组成，常被视为独立运行的器件或智能设备。相比于一般的微型计算机处理系统而言，嵌入式系统有着较大的特殊性和差异性，但又和计算机系统工程和软件工程有着极大的相似性。</p><span id="more"></span><h1 id="鸿蒙操作系统架构的4个特性"><a href="#鸿蒙操作系统架构的4个特性" class="headerlink" title="鸿蒙操作系统架构的4个特性"></a>鸿蒙操作系统架构的4个特性</h1><ol><li>分布式架构用于终端操作系统，实现跨终端无缝协同体验</li><li>确定时延引擎和高性能进程间通信技术，实现系统的流畅</li><li>基于微内核架构，重塑终端设备的可信安全</li><li>统一开发环境，一次开发，多端部署，实现跨终端生态共享</li></ol><h1 id="DARTS-实时系统设计方法"><a href="#DARTS-实时系统设计方法" class="headerlink" title="DARTS(实时系统设计方法)"></a>DARTS(实时系统设计方法)</h1><p>基于传统的结构化分析方法，扩展行为建模部分。共分成5个部分：用实时结构化分析方法开发系统规范、将系统划分为多个并发任务、定义任务间接口、设计每个任务、设计过程成果</p><p>DARTS的方法优势有：</p><ol><li>强调将系统分解为并发任务，并提供确认任务的标准</li><li>提供定义任务间接口的指南</li><li>强调用任务架构图的重要性</li><li>提供实时结构化分析规格到实时结构化设计的转换</li></ol><p>DARTS方法不足如下：</p><ol><li>DARTS使用信息隐藏技术封装数据存储，封装性不好</li><li>如果实时结构化分析阶段完成的不好，那么任务的结构化工作会更加困难</li></ol><h1 id="GENESYS-面向安全攸关的跨领域系统架构"><a href="#GENESYS-面向安全攸关的跨领域系统架构" class="headerlink" title="GENESYS(面向安全攸关的跨领域系统架构)"></a>GENESYS(面向安全攸关的跨领域系统架构)</h1><p>GENESYS是一种通用的嵌入式架构平台。采用<strong>消息交换</strong>方式实现软硬件构件的抽象级别提升，使得构件在结构规范基础上可以被重用，而不需要知道构件的内部实现。<br>GENESYS提供3组服务：领域无关服务、领域专用服务、应用专用服务(包含中间件)<br>主要的特征及优势：</p><ol><li>精确的构件定位。体现为简单化、跨领域重用、规模的经济型、健壮性、可降低系统集成</li><li>开放性。体现为具有可集成性、可升级性、可扩展性、遗产系统集成</li><li>三级集成。具体芯片级集成，设备级集成、系统级集成</li><li>分层的服务。可重用性、领域定位、工效经济型</li><li>确定的核心。体现为具有及时性、降低复杂性、可测试性、认证、故障掩蔽</li><li>标准的互联集成。体现在对远程访问的保护、降低集成工作难度、常规人机交互、具有安全性</li></ol>]]></content>
       
       
       <categories>
           
-          <category> 软考 </category>
+          <category> 架构 </category>
+          
+          <category> 嵌入式 </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> 软考 </tag>
+            <tag> 架构 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>大数据架构设计</title>
+      <link href="2025/04/28/develop/ruankao/%E5%A4%A7%E6%95%B0%E6%8D%AE/"/>
+      <url>2025/04/28/develop/ruankao/%E5%A4%A7%E6%95%B0%E6%8D%AE/</url>
+      
+        <content type="html"><![CDATA[<p>大数据架构主要面向大数据的容量体系、<strong>类型多样</strong>、高速实时、客观真实、价值可观、变化多样和复杂多源的特性，既要构件高质量属性的架构解决方案，又受制于成本、性能、可扩展性等诸多条件。同时云计算、物联网一级边缘计算等客观环境的发展，也对大数据架构设计提出了弹性、容器化的要求。</p><span id="more"></span><h1 id="大数据的特点"><a href="#大数据的特点" class="headerlink" title="大数据的特点"></a>大数据的特点</h1><p>体量大、时效性强，并非构造单调，而是多种多样；需要采用新式计算架构和智能算法为代表的新技术；大数据的应用重在发掘数据间的相关性、而非传统数据的因果关系；大数据的目的和价值在于发现新的知识，洞悉并进行科学决策。 目前的技术主要有</p><ol><li>基于分布式文件系统的Hadoop</li><li>使用Map/Reduce或Spark数据处理技术</li><li>使用kafka数据传输消息队列及Avro二进制格式</li></ol><p>大数据利用过程分为：采集、清洗、统计、挖掘四个过程</p><p>大数据的挑战</p><ol><li>如何利用信息技术等手段处理非结构化和半结构化数据</li><li>如何探索大数据复杂性、不确定性特征描述的刻画方法及大数据的系统建模</li><li>数据异构性与决策异构性的关系对大数据知识发现与管理决策的影响</li></ol><p>大数据系统应该具有鲁棒性和容错性、低延迟、横向扩展、通用、可扩展、即席查询(用户按照自己要求查询)、最少维护及可调试</p><h1 id="典型的大数据架构"><a href="#典型的大数据架构" class="headerlink" title="典型的大数据架构"></a>典型的大数据架构</h1><h2 id="lambda架构"><a href="#lambda架构" class="headerlink" title="lambda架构"></a>lambda架构</h2><p>lambda是一种用于同时处理离线和实时数据的、可容错的、可扩展的分布式系统。主要分成三层：</p><ol><li>批处理层。核心功能是存储主数据集，主数据集具有原始、不可变、真实的特征。批处理层周期性的将增量数据转储至主数据集，并在主数据集上执行批处理，生成批视图。架构实现方面可以用Hadoop HDFS或hbase，再利用Spark或MapReduce执行周期批处理，之后使用MapResuce创建批视图</li><li>加速层。该层核心功能是处理实时数据，生成实时视图，快速执行即席查询。架构实现方面可以使用Hadoop HDFS或者hbase存储实时数据，利用Spark或者Storm实现实时数据处理和实时视图</li><li>服务层。该层核心是响应用户请求，合并批视图和实时视图中的结果数据集得到最终数据集。简单来说就是接收用户请求，通过索引加速访问批视图，直接访问实时视图，然后合并两个视图结果数据集生成最终数据集。架构实现方便可以使用Hbase或Cassandra</li></ol><p>lambda架构优点：容错性好，查询灵活度高，弹性伸缩，易于扩展<br>lambda架构缺点：编码量大，持续处理成本高，重新部署和迁移成本高</p><h2 id="Kappa架构"><a href="#Kappa架构" class="headerlink" title="Kappa架构"></a>Kappa架构</h2><p>Kappa架构是在Lambda架构的基础上进行优化，删除了批处理层，将数据通道以消息队列进行替换</p><p>架构主要分为两层</p><ol><li>实时层。 该层核心功能是处理输入数据，生成实时视图。具体是采用流式处理引擎逐条处理输入数据，生成实时视图。架构实现方面采用kafka回访数据，然后采用flink或spark streaming进行处理</li><li>服务层。 该层核心是使用实时视图中的结果数据集响应用户请求。实践中采用数据湖存储作为服务层</li></ol><p>本质上是对加速层进行改进，使其进行实时数据处理的同时还能处理历史数据</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 大数据 </category>
+          
+          <category> 架构 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 架构 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>安全架构设计理论</title>
+      <link href="2025/04/28/develop/ruankao/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+      <url>2025/04/28/develop/ruankao/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/</url>
+      
+        <content type="html"><![CDATA[<p>信息系统的安全跨域物理、网络、硬件、操作系统、软件、管理等诸多层面，是一个复杂的立体空间工程。</p><span id="more"></span><h1 id="网络安全控制技术"><a href="#网络安全控制技术" class="headerlink" title="网络安全控制技术"></a>网络安全控制技术</h1><p>实施网络安全控制的相关技术有</p><ol><li>防火墙。防火墙是网络间的安全屏障，可以保护本地网络资源。防火墙可以允许/拒绝/重定向数据流及审计进出网络访问或服务。防火墙体系有：硬件防火墙，软件防火墙，嵌入式防火墙。防火墙种类有包过滤，应用层网关过滤，代理服务等。</li><li>虚拟网络技术。利用公共网络技术建立私有的专用网络，具有低成本、接入方便、可扩展性强、管理及控制方便等优点</li><li>访问控制技术。自主访问控制(DAC)、强制访问控制(MAC)、基于角色的访问控制(RBAC)、基于任务的访问技术(TBAC)及基于对象的访问控制(OBAC)</li><li>网络安全隔离。将攻击隔离在网络之外，包括网络内信息不外泄。有子网隔离，物理隔离，逻辑隔离，VLAN隔离</li><li>网络安全协议。</li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> 网络安全 </category>
+          
+          <category> 架构 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 安全 </tag>
             
         </tags>
       
@@ -72,7 +128,7 @@
       <link href="2020/10/15/develop/innodb/double%20write/"/>
       <url>2020/10/15/develop/innodb/double%20write/</url>
       
-        <content type="html"><![CDATA[<p>部分写失败主要是文件系统定义的页大小与磁盘(512)大小不一致导致。 innodb的page size一般是16kb，其数据校验也是根据这16kb来计算，将数据写入磁盘都是已Page为单位进行操作…</p><span id="more"></span><h1 id="部分写失败问题"><a href="#部分写失败问题" class="headerlink" title="部分写失败问题"></a>部分写失败问题</h1><p>部分写失败主要是文件系统定义的页大小与磁盘(512)大小不一致导致。 innodb的page size一般是16kb，其数据校验也是根据这16kb来计算，将数据写入磁盘都是已Page为单位进行操作，在innodb刷脏页写磁盘的时候，需要进行多次的磁盘io，而这个步骤不是原子的，如果中间发生断电、服务器宕机等情况，就会导致只在磁盘写入部分数据。</p><p>我们也知道，innodb中redolog可以用来数据恢复，那这个情况是否可以恢复？这个情况下其实redolog是恢复不了的，redolog中记录的是对页的物理操作，比如<code>偏移xx，写入xxxx</code>。如果页本身已经损坏，再对其进行重做是没有意义的。mysql在恢复过程中会检查page的校验和，如果page损坏导致写之前就无法通过校验。如果强制写入，可能会导致一些逻辑错误。</p><p>因为这个原因，innodb实现了double write buffer；</p><h1 id="double-write"><a href="#double-write" class="headerlink" title="double write"></a>double write</h1><p>double write由两部分组成，一部分是innodb内存中的double write buffer，大小为2M，另一部分是物理磁盘上ibdata系统表空间中的2M，共128个连续的page，即两个分区。其中120个页用于批量刷新脏页，另外8个页用于单页刷新</p><p><img src="/images/innodb/double_write.jpeg" alt=""></p>]]></content>
+        <content type="html"><![CDATA[<p>InnoDB的两次写（Double Write）是InnoDB存储引擎的一个关键特性，主要用于解决数据库在写入过程中可能发生的”部分写失效”（Partial Page Write）问题，确保数据的完整性和可靠性。两次写机制的主要作用是<strong>防止部分写失效</strong>导致的数据损坏</p><span id="more"></span><h1 id="部分写失败问题"><a href="#部分写失败问题" class="headerlink" title="部分写失败问题"></a>部分写失败问题</h1><p>部分写失败主要是文件系统定义的页大小与磁盘(512)大小不一致导致。 innodb的page size一般是16kb，其数据校验也是根据这16kb来计算，将数据写入磁盘都是已Page为单位进行操作，在innodb刷脏页写磁盘的时候，需要进行多次的磁盘io，而这个步骤不是原子的，如果中间发生断电、服务器宕机等情况，就会导致只在磁盘写入部分数据。</p><p>我们也知道，innodb中redolog可以用来数据恢复，那这个情况是否可以恢复？这个情况下其实redolog是恢复不了的，redolog中记录的是对页的物理操作，比如<code>偏移xx，写入xxxx</code>。如果页本身已经损坏，再对其进行重做是没有意义的。mysql在恢复过程中会检查page的校验和，如果page损坏导致写之前就无法通过校验。如果强制写入，可能会导致一些逻辑错误。</p><p>因为这个原因，innodb实现了double write buffer；</p><h1 id="double-write"><a href="#double-write" class="headerlink" title="double write"></a>double write</h1><p>double write由两部分组成，一部分是innodb内存中的double write buffer，大小为2M，另一部分是物理磁盘上ibdata系统表空间中的2M，共128个连续的page，即两个分区。其中120个页用于批量刷新脏页，另外8个页用于单页刷新</p><p><img src="/images/innodb/double_write.jpeg" alt=""></p>]]></content>
       
       
       

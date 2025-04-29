@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"rhythmic-zone.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":false,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="部分写失败主要是文件系统定义的页大小与磁盘(512)大小不一致导致。 innodb的page size一般是16kb，其数据校验也是根据这16kb来计算，将数据写入磁盘都是已Page为单位进行操作…">
+  <meta name="description" content="InnoDB的两次写（Double Write）是InnoDB存储引擎的一个关键特性，主要用于解决数据库在写入过程中可能发生的”部分写失效”（Partial Page Write）问题，确保数据的完整性和可靠性。两次写机制的主要作用是防止部分写失效导致的数据损坏">
 <meta property="og:type" content="article">
 <meta property="og:title" content="innodb两次写">
 <meta property="og:url" content="https://rhythmic-zone.github.io/2020/10/15/develop/innodb/double%20write/index.html">
 <meta property="og:site_name" content="rhythmic-zone">
-<meta property="og:description" content="部分写失败主要是文件系统定义的页大小与磁盘(512)大小不一致导致。 innodb的page size一般是16kb，其数据校验也是根据这16kb来计算，将数据写入磁盘都是已Page为单位进行操作…">
+<meta property="og:description" content="InnoDB的两次写（Double Write）是InnoDB存储引擎的一个关键特性，主要用于解决数据库在写入过程中可能发生的”部分写失效”（Partial Page Write）问题，确保数据的完整性和可靠性。两次写机制的主要作用是防止部分写失效导致的数据损坏">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://rhythmic-zone.github.io/images/innodb/double_write.jpeg">
 <meta property="article:published_time" content="2020-10-15T08:44:49.000Z">
-<meta property="article:modified_time" content="2025-04-28T07:58:30.590Z">
+<meta property="article:modified_time" content="2025-04-28T09:11:22.614Z">
 <meta property="article:author" content="blue">
 <meta property="article:tag" content="java,工具,生活">
 <meta name="twitter:card" content="summary">
@@ -193,7 +193,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-04-28 15:58:30" itemprop="dateModified" datetime="2025-04-28T15:58:30+08:00">2025-04-28</time>
+                <time title="修改时间：2025-04-28 17:11:22" itemprop="dateModified" datetime="2025-04-28T17:11:22+08:00">2025-04-28</time>
               </span>
 
           
@@ -207,7 +207,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>部分写失败主要是文件系统定义的页大小与磁盘(512)大小不一致导致。 innodb的page size一般是16kb，其数据校验也是根据这16kb来计算，将数据写入磁盘都是已Page为单位进行操作…</p>
+        <p>InnoDB的两次写（Double Write）是InnoDB存储引擎的一个关键特性，主要用于解决数据库在写入过程中可能发生的”部分写失效”（Partial Page Write）问题，确保数据的完整性和可靠性。两次写机制的主要作用是<strong>防止部分写失效</strong>导致的数据损坏</p>
 <span id="more"></span>
 <h1 id="部分写失败问题"><a href="#部分写失败问题" class="headerlink" title="部分写失败问题"></a>部分写失败问题</h1><p>部分写失败主要是文件系统定义的页大小与磁盘(512)大小不一致导致。 innodb的page size一般是16kb，其数据校验也是根据这16kb来计算，将数据写入磁盘都是已Page为单位进行操作，在innodb刷脏页写磁盘的时候，需要进行多次的磁盘io，而这个步骤不是原子的，如果中间发生断电、服务器宕机等情况，就会导致只在磁盘写入部分数据。</p>
 <p>我们也知道，innodb中redolog可以用来数据恢复，那这个情况是否可以恢复？这个情况下其实redolog是恢复不了的，redolog中记录的是对页的物理操作，比如<code>偏移xx，写入xxxx</code>。如果页本身已经损坏，再对其进行重做是没有意义的。mysql在恢复过程中会检查page的校验和，如果page损坏导致写之前就无法通过校验。如果强制写入，可能会导致一些逻辑错误。</p>
@@ -308,20 +308,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
